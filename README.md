@@ -168,3 +168,145 @@ Project Lead: @aimerdoux
 - v0.1.1: Added NFT minting functionality
 - v0.1.2: Implemented benefit management system
 - v0.1.3: Added merchant benefit proposal system (in progress)
+
+# Contributing to WaveX NFT Project
+
+## Git Workflow Guide
+
+### Making Changes
+
+1. Before starting new work, ensure your local repository is up to date:
+```bash
+git pull origin main
+```
+
+2. Check the status of your changes:
+```bash
+git status
+```
+This will show:
+- Modified files in red (unstaged changes)
+- New files that aren't being tracked
+- Staged files in green
+
+### Committing Changes
+
+1. Stage new files:
+```bash
+# Add specific files
+git add path/to/file
+
+# Examples:
+git add scripts/mintNFTs.js
+git add scripts/checkNFTs.js
+git add scripts/addBenefits.js
+
+# Add all new files in a directory
+git add scripts/*.js
+
+# Add all changes
+git add .
+```
+
+2. Stage modified files:
+```bash
+git add hardhat.config.js
+```
+
+3. Create a commit with a descriptive message:
+```bash
+git commit -m "type: brief description"
+```
+
+### Commit Message Convention
+
+Follow these types for your commit messages:
+- `feat:` - New features (e.g., "feat: add NFT minting functionality")
+- `fix:` - Bug fixes (e.g., "fix: resolve benefit redemption issue")
+- `docs:` - Documentation changes (e.g., "docs: update setup instructions")
+- `chore:` - Maintenance tasks (e.g., "chore: update dependencies")
+- `refactor:` - Code refactoring (e.g., "refactor: optimize benefit distribution")
+- `test:` - Adding or modifying tests (e.g., "test: add minting tests")
+- `style:` - Code style changes (e.g., "style: format contract code")
+
+Examples of good commit messages:
+```bash
+git commit -m "feat: implement NFT minting and benefit management"
+git commit -m "fix: resolve gas optimization in batch minting"
+git commit -m "docs: add contributing guidelines"
+```
+
+### Pushing Changes
+
+1. Pull latest changes before pushing:
+```bash
+git pull origin main
+```
+
+2. Push your changes:
+```bash
+git push origin main
+```
+
+### Best Practices
+
+1. **Frequent Commits**: Make small, focused commits rather than large ones
+2. **Clear Messages**: Write descriptive commit messages
+3. **Pull First**: Always pull before starting new work
+4. **Review Changes**: Use `git status` and `git diff` before committing
+5. **Branch When Needed**: Create feature branches for major changes
+
+### Handling Merge Conflicts
+
+If you encounter merge conflicts:
+
+1. Identify conflicted files:
+```bash
+git status
+```
+
+2. Open each conflicted file and resolve conflicts
+   - Look for sections marked with `<<<<<<<`, `=======`, and `>>>>>>>`
+   - Choose which changes to keep
+   - Remove conflict markers
+
+3. Stage resolved files:
+```bash
+git add <resolved-file>
+```
+
+4. Complete the merge:
+```bash
+git commit -m "merge: resolve conflicts in benefit system"
+```
+
+### Additional Commands
+
+Check commit history:
+```bash
+git log
+```
+
+View changes in a file:
+```bash
+git diff path/to/file
+```
+
+Discard changes in a file:
+```bash
+git checkout -- path/to/file
+```
+
+### Getting Help
+
+- View command help: `git help <command>`
+- Check command options: `git <command> --help`
+- View command summary: `git <command> -h`
+
+## Contact
+
+If you have questions or need help:
+- Open an issue on GitHub
+- Contact the project maintainer: @aimerdoux
+
+Remember to never commit sensitive information like private keys or API keys!
