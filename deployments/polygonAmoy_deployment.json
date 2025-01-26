@@ -1,0 +1,14 @@
+{
+  "networkName": "polygonAmoy",
+  "contractAddress": "0x9EBCEB56bc3D83c52058d7770A360bA3DBCF3589",
+  "deploymentTime": "2025-01-26T04:11:40.548Z",
+  "deployer": "0xf383A56057374Ae7cb437D61cc86843855F0DdB5",
+  "maxSupply": "10000",
+  "maxBatchMint": "20",
+  "baseURI": "",
+  "initialMerchant": "",
+  "deploymentBlock": 17303168,
+  "chainId": "80002",
+  "contractName": "WaveXNFT",
+  "contractSymbol": "WAVEX"
+}
