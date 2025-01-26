@@ -1,0 +1,18 @@
+{
+  "tokenId": "1",
+  "created": "2025-01-26T22:20:48.392Z",
+  "metadata": {
+    "nft_visual": {
+      "ipfsHash": "QmXhu4HZqSdjxUoTV7N28aNyMtc976yzb3hb6QBZS2Yw8V",
+      "url": "https://gateway.pinata.cloud/ipfs/QmXhu4HZqSdjxUoTV7N28aNyMtc976yzb3hb6QBZS2Yw8V"
+    },
+    "prepaid_card": {
+      "ipfsHash": "QmREJNYR3SUcdj21cyPrLK4DCCpc1hnZH7RBFQricQqw6P",
+      "url": "https://gateway.pinata.cloud/ipfs/QmREJNYR3SUcdj21cyPrLK4DCCpc1hnZH7RBFQricQqw6P"
+    },
+    "apple_wallet": {
+      "ipfsHash": "QmarmseKuXBAZMdMnEqsyAudt5m5tfKzwRbhSwMLS2zTrp",
+      "url": "https://gateway.pinata.cloud/ipfs/QmarmseKuXBAZMdMnEqsyAudt5m5tfKzwRbhSwMLS2zTrp"
+    }
+  }
+}
