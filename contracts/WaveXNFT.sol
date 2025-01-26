@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";     
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -23,7 +23,7 @@ contract WaveXNFT is ERC721, ERC721Enumerable, Ownable {
 
     // Maximum supply of NFTs
     uint256 public constant MAX_SUPPLY = 10000;
-    
+
     // Batch minting configuration
     uint256 public constant MAX_BATCH_MINT = 20;
 
@@ -32,12 +32,13 @@ contract WaveXNFT is ERC721, ERC721Enumerable, Ownable {
 
     // Mapping from token ID to its benefits
     mapping(uint256 => Benefit[]) private _tokenBenefits;
-    
+
     // Mapping to track merchant addresses
     mapping(address => bool) public authorizedMerchants;
 
     // Events
     event BenefitAdded(uint256 indexed tokenId, BenefitType benefitType, uint256 value);
+    event BenefitModified(uint256 indexed tokenId, uint256 indexed benefitIndex, uint256 newValue, uint256 newExpiration);
     event BenefitRedeemed(uint256 indexed tokenId, BenefitType benefitType, uint256 value);
     event MerchantStatusUpdated(address merchant, bool status);
     event BatchMinted(address indexed minter, uint256[] tokenIds);
@@ -54,7 +55,7 @@ contract WaveXNFT is ERC721, ERC721Enumerable, Ownable {
     // Minting function
     function mint() public payable returns (uint256) {
         require(_nextTokenId.current() <= MAX_SUPPLY, "Max supply reached");
-        
+
         uint256 tokenId = _nextTokenId.current();
         _safeMint(msg.sender, tokenId);
         _nextTokenId.increment();
@@ -94,67 +95,77 @@ contract WaveXNFT is ERC721, ERC721Enumerable, Ownable {
         uint256 durationInDays
     ) external onlyOwner {
         require(_tokenExists(tokenId), "Token does not exist");
-        
+
         uint256 expirationTime = block.timestamp + (durationInDays * 1 days);
-        
+
         Benefit memory newBenefit = Benefit({
             benefitType: benefitType,
             value: value,
             expirationTime: expirationTime,
             isRedeemed: false
         });
-        
+
         _tokenBenefits[tokenId].push(newBenefit);
-        
+
         emit BenefitAdded(tokenId, benefitType, value);
     }
 
-    // Redeem benefit with optional partial redemption
-// Redeem benefit with optional partial redemption
-function redeemBenefit(
-    uint256 tokenId,
-    uint256 benefitIndex,
-    uint256 amount
-) external {
-    require(_tokenExists(tokenId), "Token does not exist");
-    
-    // For MERCHANT_ALLOWANCE, allow merchants to redeem
-    Benefit storage benefit = _tokenBenefits[tokenId][benefitIndex];
-    
-    if (benefit.benefitType == BenefitType.MERCHANT_ALLOWANCE) {
-        // Merchant-specific checks for MERCHANT_ALLOWANCE
-        require(authorizedMerchants[msg.sender], "Not an authorized merchant");
-    } else {
-        // For other benefit types, only token owner can redeem
-        require(ownerOf(tokenId) == msg.sender, "Not token owner");
-    }
-    
-    require(benefitIndex < _tokenBenefits[tokenId].length, "Benefit index out of bounds");
-    require(!benefit.isRedeemed, "Benefit already redeemed");
-    require(block.timestamp <= benefit.expirationTime, "Benefit expired");
+    // Modify an existing benefit
+    function modifyBenefit(
+        uint256 tokenId,
+        uint256 benefitIndex,
+        uint256 newValue,
+        uint256 durationInDays
+    ) external onlyOwner {
+        require(_tokenExists(tokenId), "Token does not exist");
+        require(benefitIndex < _tokenBenefits[tokenId].length, "Benefit index out of bounds");
 
-    // Partial redemption logic for MERCHANT_ALLOWANCE
-    if (benefit.benefitType == BenefitType.MERCHANT_ALLOWANCE) {
-        // If no amount specified, use full benefit value
-        uint256 redeemAmount = amount == 0 ? benefit.value : amount;
-        
-        // Check for sufficient allowance
-        require(redeemAmount <= benefit.value, "Insufficient allowance");
-        
-        // Reduce benefit value
-        benefit.value -= redeemAmount;
-        
-        // Mark as fully redeemed if value reaches zero
-        if (benefit.value == 0) {
+        Benefit storage benefit = _tokenBenefits[tokenId][benefitIndex];
+        require(!benefit.isRedeemed, "Cannot modify redeemed benefit");
+
+        // Update benefit values
+        benefit.value = newValue;
+        benefit.expirationTime = block.timestamp + (durationInDays * 1 days);
+
+        emit BenefitModified(tokenId, benefitIndex, newValue, benefit.expirationTime);
+    }
+
+    // Redeem benefit with optional partial redemption
+    function redeemBenefit(
+        uint256 tokenId,
+        uint256 benefitIndex,
+        uint256 amount
+    ) external {
+        require(_tokenExists(tokenId), "Token does not exist");
+
+        // For MERCHANT_ALLOWANCE, allow merchants to redeem
+        Benefit storage benefit = _tokenBenefits[tokenId][benefitIndex];
+
+        if (benefit.benefitType == BenefitType.MERCHANT_ALLOWANCE) {
+            require(authorizedMerchants[msg.sender], "Not an authorized merchant");
+        } else {
+            require(ownerOf(tokenId) == msg.sender, "Not token owner");
+        }
+
+        require(benefitIndex < _tokenBenefits[tokenId].length, "Benefit index out of bounds");
+        require(!benefit.isRedeemed, "Benefit already redeemed");
+        require(block.timestamp <= benefit.expirationTime, "Benefit expired");
+
+        // Partial redemption logic for MERCHANT_ALLOWANCE
+        if (benefit.benefitType == BenefitType.MERCHANT_ALLOWANCE) {
+            uint256 redeemAmount = amount == 0 ? benefit.value : amount;
+            require(redeemAmount <= benefit.value, "Insufficient allowance");
+
+            benefit.value -= redeemAmount;
+            if (benefit.value == 0) {
+                benefit.isRedeemed = true;
+            }
+        } else {
             benefit.isRedeemed = true;
         }
-    } else {
-        // For other benefit types, mark as fully redeemed
-        benefit.isRedeemed = true;
-    }
 
-    emit BenefitRedeemed(tokenId, benefit.benefitType, amount);
-}
+        emit BenefitRedeemed(tokenId, benefit.benefitType, amount);
+    }
 
     // Manage merchants
     function setMerchantStatus(address merchant, bool status) external onlyOwner {

@@ -5,10 +5,10 @@ WaveX is an innovative NFT project designed to provide unique digital assets wit
 
 ## Current Development Status
 - Smart Contract Deployed on Polygon Amoy Testnet
-- Contract Address: `0xD718613a5463e99a5947D2AF37Ce50b6E8B126d9`
-- Verified on Polygonscan
-- Initial NFTs Minted: 5
-- Benefit System: Implemented and Tested
+- Contract Address: `0x9EBCEB56bc3D83c52058d7770A360bA3DBCF3589`
+- Verified on Polygonscan: [View Contract](https://amoy.polygonscan.com/address/0x9EBCEB56bc3D83c52058d7770A360bA3DBCF3589#code)
+- Initial NFTs Minted and Testing Complete
+- Benefit System: Implemented and Ready for Integration
 
 ## Project Structure
 ```
@@ -19,30 +19,44 @@ wavex-nft/
 │
 ├── scripts/
 │   ├── deploy.js            # Deployment script
-│   ├── mintNFTs.js          # NFT minting script
-│   ├── checkNFTs.js         # NFT verification script
-│   ├── addBenefits.js       # Benefit management script
-│   └── testBenefits.js      # Benefit testing script
+│   ├── verify.js           # Contract verification script
+│   ├── mint.js             # Single NFT minting script
+│   ├── batchMint.js        # Batch minting script
+│   ├── benefits/
+│   │   ├── addBenefits.js   # Add benefits to tokens
+│   │   ├── modifyBenefits.js # Modify existing benefits
+│   │   └── getBenefits.js   # Query token benefits
+│   ├── merchant/
+│   │   ├── redeemBenefit.js # Process benefit redemption
+│   │   └── verifyBenefit.js # Verify benefit validity
+│   ├── metadata/
+│   │   ├── updateBaseURI.js  # Update metadata base URI
+│   │   └── generateMetadata.js # Generate token metadata
+│   └── utils/
+│       ├── config.js        # Configuration helpers
+│       └── deployment.js    # Deployment helpers
 │
-├── test/                    # Test cases
+├── test/
+│   └── WaveXNFT-Suite.test.js # Comprehensive test suite
 │
-├── CONTRIBUTING.md          # Contribution guidelines
-├── hardhat.config.js        # Hardhat configuration
-└── .env                     # Environment variables
+├── deployments/             # Deployment artifacts
+├── CONTRIBUTING.md         # Contribution guidelines
+├── hardhat.config.js       # Hardhat configuration
+└── .env                    # Environment variables
 ```
 
 ## Key Features
-- ERC721 NFT Standard
-- Merchant Allowance System
-- Yacht Event Access
-- Benefit Redemption Mechanism
-- Maximum Supply Limit (10,000 NFTs)
-- Batch Benefit Distribution
-- Merchant Benefit Proposal System
-- Admin Dashboard for Benefit Management
+- ERC721 NFT Standard with Enhanced Benefits
+- Merchant Allowance System with Partial Redemption
+- Event Access Management
+- Benefit Redemption & Verification System
+- Maximum Supply: 10,000 NFTs
+- Batch Minting Support (up to 20 NFTs)
+- Merchant Authorization System
+- Admin Controls for Benefit Management
 
 ## Prerequisites
-- Node.js (v14+ recommended)
+- Node.js (v18+ recommended)
 - Hardhat
 - Ethereum Wallet
 - Polygon Amoy Testnet MATIC tokens
@@ -50,7 +64,7 @@ wavex-nft/
 ## Setup Instructions
 1. Clone the repository
    ```bash
-   git clone https://github.com/aimerdoux/wavex-nft
+   git clone https://github.com/your-username/wavex-nft
    cd wavex-nft
    ```
 
@@ -64,26 +78,40 @@ wavex-nft/
    ALCHEMY_API_KEY=your_alchemy_api_key
    PRIVATE_KEY=your_private_key
    POLYGONSCAN_API_KEY=your_polygonscan_api_key
+   BASE_URI=your_metadata_base_uri
+   INITIAL_MERCHANT=optional_merchant_address
    ```
 
 ## Usage Guide
 
-### Minting NFTs
+### Deployment and Verification
 ```bash
-# Mint NFTs
-npx hardhat run scripts/mintNFTs.js --network polygonAmoy
+# Deploy contract
+npx hardhat run scripts/deploy.js --network polygonAmoy
 
-# Verify minted NFTs
-npx hardhat run scripts/checkNFTs.js --network polygonAmoy
+# Verify contract (after waiting for propagation)
+npx hardhat run scripts/verify.js --network polygonAmoy
 ```
 
-### Managing Benefits
+### Minting NFTs
 ```bash
-# Add benefits to NFTs
-npx hardhat run scripts/addBenefits.js --network polygonAmoy
+# Single mint
+npx hardhat run scripts/mint.js --network polygonAmoy
 
-# Test benefit system
-npx hardhat run scripts/testBenefits.js --network polygonAmoy
+# Batch mint
+npx hardhat run scripts/batchMint.js --network polygonAmoy
+```
+
+### Managing Benefits (Coming Soon)
+```bash
+# Add benefits
+npx hardhat run scripts/benefits/addBenefits.js --network polygonAmoy
+
+# Modify benefits
+npx hardhat run scripts/benefits/modifyBenefits.js --network polygonAmoy
+
+# Query benefits
+npx hardhat run scripts/benefits/getBenefits.js --network polygonAmoy
 ```
 
 ## Development Roadmap
@@ -92,69 +120,61 @@ npx hardhat run scripts/testBenefits.js --network polygonAmoy
 - [x] Smart Contract Development
 - [x] Deployment to Polygon Amoy Testnet
 - [x] Contract Verification
-- [x] Initial NFT Minting
-- [x] Basic Benefit System Implementation
+- [x] Minting System (Single & Batch)
+- [x] Basic Benefit Structure
 
 ### In Progress
-- [ ] Merchant Benefit Proposal System
-- [ ] Admin Dashboard Development
-- [ ] Batch Benefit Distribution
-- [ ] Enhanced Security Features
+- [ ] Benefit Management Scripts
+- [ ] Merchant Redemption System
+- [ ] Metadata Management System
+- [ ] Apple Wallet Integration
 
 ### Upcoming Tasks
 - [ ] Frontend Development
-- [ ] Merchant Portal Integration
-- [ ] Additional Benefit Types
+- [ ] Merchant Portal
+- [ ] Token Metadata & Visuals
 - [ ] Security Audit
-- [ ] Marketplace Integration
+- [ ] Performance Optimization
 
 ## System Architecture
 
 ### Benefit Types
 1. Merchant Allowance
-   - Monetary value for use with participating merchants
-   - Time-limited validity
-   - Merchant verification system
+   - Partial redemption support
+   - Time-bound validity
+   - Value tracking system
 
-2. Yacht Event Access
-   - Exclusive event participation rights
-   - Time-bound access tokens
-   - Multiple access levels
+2. Event Access
+   - Time-limited passes
+   - Multi-tier access levels
+   - Usage tracking
 
 3. Discounts
-   - Percentage-based discounts
-   - Fixed-amount discounts
-   - Merchant-specific offers
+   - Percentage & fixed-amount options
+   - Merchant-specific redemption
+   - Validity period management
 
-### Merchant Integration
-- Merchant authorization system
-- Benefit proposal mechanism
-- Request tracking and management
-- Merchant dashboard for benefit management
-
-### Admin Controls
-- Benefit approval system
-- Merchant authorization management
-- Batch benefit distribution
-- Request processing interface
+### Metadata System (In Development)
+- Prepaid Visa Card Token Integration
+- NFT Card Image Generation
+- Apple Wallet Pass Generation
+- Transaction History Tracking
+- Dynamic Metadata Updates
 
 ## Security Considerations
-- Role-based access control
-- Benefit redemption verification
-- Merchant authentication
-- Time-bound benefit expiration
-- Request validation and verification
-
-## Contributing
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+- Role-based Access Control
+- Benefit Expiration Enforcement
+- Merchant Authentication
+- Redemption Verification
+- Supply Limit Enforcement
 
 ## Testing
 ```bash
 # Run all tests
 npx hardhat test
 
-# Run specific test file
-npx hardhat test test/WaveXNFT.test.js
+# Run specific test suite
+npx hardhat test test/WaveXNFT-Suite.test.js
 ```
 
 ## License
@@ -165,9 +185,10 @@ Project Lead: @aimerdoux
 
 ## Version History
 - v0.1.0: Initial deployment on Polygon Amoy Testnet
-- v0.1.1: Added NFT minting functionality
-- v0.1.2: Implemented benefit management system
-- v0.1.3: Added merchant benefit proposal system (in progress)
+- v0.1.1: Added minting functionality
+- v0.1.2: Implemented verification system
+- v0.1.3: Added benefit structure
+- v0.1.4: Added batch minting capabilities
 
 # Contributing to WaveX NFT Project
 
