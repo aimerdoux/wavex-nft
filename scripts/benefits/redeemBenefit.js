@@ -1,17 +1,6 @@
 // scripts/benefits/redeemBenefit.js
 const hre = require("hardhat");
-const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
-const { BenefitType, validateBenefitParams } = require('../utils/benefitTypes');
-
-async function getDeployment(networkName) {
-    const deploymentPath = path.join(__dirname, '../../deployments', `${networkName}_deployment.json`);
-    if (!fs.existsSync(deploymentPath)) {
-        throw new Error(`No deployment found for network ${networkName}`);
-    }
-    return JSON.parse(fs.readFileSync(deploymentPath, 'utf8'));
-}
 
 async function checkBenefitValidity(contract, tokenId, benefitIndex) {
     try {
@@ -23,7 +12,7 @@ async function checkBenefitValidity(contract, tokenId, benefitIndex) {
         const benefit = benefits[benefitIndex];
         console.log("\nBenefit Details Pre-Redemption:");
         console.log("==============================");
-        console.log(`Type: ${Object.keys(BenefitType)[benefit.benefitType]}`);
+        console.log(`Type: ${benefit.benefitType}`);
         console.log(`Available Value: ${benefit.value.toString()}`);
         console.log(`Expiration: ${new Date(Number(benefit.expirationTime) * 1000).toLocaleString()}`);
         console.log(`Already Redeemed: ${benefit.isRedeemed}`);
@@ -70,20 +59,18 @@ async function redeemBenefit(contract, tokenId, benefitIndex, redeemAmount) {
         console.log(`Benefit Index: ${benefitIndex}`);
         console.log(`Redemption Amount: ${redeemAmount}`);
 
+        // Configure gas settings for Polygon Amoy
+        const gasSettings = {
+            maxFeePerGas: hre.ethers.parseUnits("50", "gwei"),
+            maxPriorityFeePerGas: hre.ethers.parseUnits("25", "gwei"),
+            gasLimit: 500000
+        };
+
         // Execute redemption
-        const tx = await contract.redeemBenefit(tokenId, benefitIndex, redeemAmount);
+        const tx = await contract.redeemBenefit(tokenId, benefitIndex, redeemAmount, gasSettings);
         console.log("\nTransaction submitted. Waiting for confirmation...");
         
         const receipt = await tx.wait();
-
-        // Find redemption event
-        const event = receipt.logs.find(log => {
-            try {
-                return contract.interface.parseLog(log).name === "BenefitRedeemed";
-            } catch {
-                return false;
-            }
-        });
 
         // Get updated benefit details
         const updatedBenefit = (await contract.getBenefits(tokenId))[benefitIndex];
@@ -95,6 +82,18 @@ async function redeemBenefit(contract, tokenId, benefitIndex, redeemAmount) {
         console.log("\nUpdated Benefit Status:");
         console.log("Remaining Value:", updatedBenefit.value.toString());
         console.log("Is Fully Redeemed:", updatedBenefit.isRedeemed);
+
+        // Show all benefits after redemption
+        const allBenefits = await contract.getBenefits(tokenId);
+        console.log("\nAll Benefits for Token:", tokenId);
+        console.log("=========================");
+        allBenefits.forEach((benefit, index) => {
+            console.log(`\nBenefit #${index}:`);
+            console.log(`Type: ${benefit.benefitType}`);
+            console.log(`Value: ${benefit.value.toString()}`);
+            console.log(`Expiration: ${new Date(Number(benefit.expirationTime) * 1000).toLocaleString()}`);
+            console.log(`Redeemed: ${benefit.isRedeemed}`);
+        });
 
         return {
             success: true,
@@ -111,34 +110,34 @@ async function redeemBenefit(contract, tokenId, benefitIndex, redeemAmount) {
 
 async function main() {
     try {
+        const contractAddress = process.env.CONTRACT_ADDRESS;
+        const tokenId = process.env.TOKEN_ID;
+        const benefitIndex = process.env.BENEFIT_INDEX || "0";
+        const redeemAmount = process.env.REDEEM_AMOUNT;
+
         // Debug: Print environment variables
         console.log("\nEnvironment Variables:");
         console.log("=====================");
-        console.log("TOKEN_ID:", process.env.TOKEN_ID);
-        console.log("BENEFIT_INDEX:", process.env.BENEFIT_INDEX);
-        console.log("REDEEM_AMOUNT:", process.env.REDEEM_AMOUNT);
+        console.log("CONTRACT_ADDRESS:", contractAddress);
+        console.log("TOKEN_ID:", tokenId);
+        console.log("BENEFIT_INDEX:", benefitIndex);
+        console.log("REDEEM_AMOUNT:", redeemAmount);
 
-        const networkName = hre.network.name;
-        const deployment = await getDeployment(networkName);
-        
-        // Get contract instance
-        const WaveXNFT = await hre.ethers.getContractFactory("WaveXNFT");
-        const wavexNFT = WaveXNFT.attach(deployment.contractAddress);
-
-        // Get parameters with validation
-        const tokenId = process.env.TOKEN_ID;
-        const benefitIndex = process.env.BENEFIT_INDEX || 0;
-        const redeemAmount = process.env.REDEEM_AMOUNT;
+        if (!contractAddress) {
+            throw new Error("CONTRACT_ADDRESS not found in environment variables");
+        }
 
         if (!tokenId || !redeemAmount) {
-            throw new Error(
-                "Please provide TOKEN_ID and REDEEM_AMOUNT in environment variables"
-            );
+            throw new Error("Please provide TOKEN_ID and REDEEM_AMOUNT in environment variables");
         }
+
+        // Get contract instance
+        const WaveXNFT = await hre.ethers.getContractFactory("WaveXNFT");
+        const contract = WaveXNFT.attach(contractAddress);
 
         // Process redemption
         const result = await redeemBenefit(
-            wavexNFT,
+            contract,
             parseInt(tokenId),
             parseInt(benefitIndex),
             parseInt(redeemAmount)

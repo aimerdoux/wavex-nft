@@ -1,60 +1,73 @@
 // scripts/merchant/authorizeMerchant.js
 const hre = require("hardhat");
-const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
-
-async function getDeployment(networkName) {
-    const deploymentPath = path.join(__dirname, '../../deployments', `${networkName}_deployment.json`);
-    if (!fs.existsSync(deploymentPath)) {
-        throw new Error(`No deployment found for network ${networkName}`);
-    }
-    return JSON.parse(fs.readFileSync(deploymentPath, 'utf8'));
-}
 
 async function main() {
     try {
-        const networkName = hre.network.name;
-        const deployment = await getDeployment(networkName);
+        // Get parameters from environment
+        const contractAddress = process.env.CONTRACT_ADDRESS;
         
         // Get contract instance
         const WaveXNFT = await hre.ethers.getContractFactory("WaveXNFT");
-        const wavexNFT = WaveXNFT.attach(deployment.contractAddress);
+        const contract = WaveXNFT.attach(contractAddress);
 
         // Get current signer to authorize as merchant
-        const [signer] = await hre.ethers.getSigners();
-        const merchantAddress = process.env.MERCHANT_ADDRESS || signer.address;
+        const [owner] = await hre.ethers.getSigners();
+        const merchantAddress = process.env.MERCHANT_ADDRESS || owner.address;
 
-        console.log("\nAuthorizing Merchant:");
-        console.log("====================");
+        console.log("\nAuthorization Details:");
+        console.log("=====================");
+        console.log("Contract Address:", contractAddress);
+        console.log("Owner Address:", owner.address);
         console.log("Merchant Address:", merchantAddress);
 
         // Check current status
-        const currentStatus = await wavexNFT.authorizedMerchants(merchantAddress);
-        console.log("Current Authorization Status:", currentStatus);
+        const currentStatus = await contract.authorizedMerchants(merchantAddress);
+        console.log("\nCurrent Authorization Status:", currentStatus);
 
         if (!currentStatus) {
+            // Configure gas settings for Polygon Amoy
+            const gasSettings = {
+                maxFeePerGas: hre.ethers.parseUnits("50", "gwei"),
+                maxPriorityFeePerGas: hre.ethers.parseUnits("25", "gwei"),
+                gasLimit: 500000
+            };
+
             // Authorize merchant
             console.log("\nSubmitting authorization transaction...");
-            const tx = await wavexNFT.setMerchantStatus(merchantAddress, true);
-            await tx.wait();
-
+            const tx = await contract.setMerchantStatus(merchantAddress, true, gasSettings);
+            console.log("Transaction Hash:", tx.hash);
+            
+            console.log("Waiting for confirmation...");
+            const receipt = await tx.wait();
+            
             // Verify new status
-            const newStatus = await wavexNFT.authorizedMerchants(merchantAddress);
-            console.log("\nMerchant Authorization Complete!");
+            const newStatus = await contract.authorizedMerchants(merchantAddress);
+            
+            console.log("\nAuthorization Complete!");
+            console.log("========================");
+            console.log("Transaction Hash:", receipt.hash);
+            console.log("Gas Used:", receipt.gasUsed.toString());
             console.log("New Authorization Status:", newStatus);
         } else {
             console.log("\nMerchant is already authorized!");
         }
 
+        // Final verification
+        const finalStatus = await contract.authorizedMerchants(merchantAddress);
+        
         return {
             success: true,
-            merchantAddress: merchantAddress,
-            isAuthorized: true
+            contractAddress,
+            merchantAddress,
+            isAuthorized: finalStatus,
+            ownerAddress: owner.address
         };
 
     } catch (error) {
-        console.error("\nError during merchant authorization:", error);
+        console.error("\nError during merchant authorization:");
+        console.error("=================================");
+        console.error(error);
         process.exit(1);
     }
 }

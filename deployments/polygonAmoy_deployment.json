@@ -1,9 +1,0 @@
-{
-  "networkName": "polygonAmoy",
-  "contractAddress": "0xf343A91eCc9a39cAeb880ad7802D18F1e38a0420",
-  "deploymentTime": "2025-01-26T17:35:04.465Z",
-  "version": "v1.1.0",
-  "deploymentBlock": 17325591,
-  "chainId": "80002",
-  "deploymentTransaction": "0xee6cb974cd0c00afe87633c9811f7a599b5c356d95dbdf627c7cd03d5f580772"
-}

@@ -1,17 +1,6 @@
 // scripts/benefits/modifyBenefits.js
 const hre = require("hardhat");
-const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
-const { BenefitType, validateBenefitParams } = require('../utils/benefitTypes');
-
-async function getDeployment(networkName) {
-    const deploymentPath = path.join(__dirname, '../../deployments', `${networkName}_deployment.json`);
-    if (!fs.existsSync(deploymentPath)) {
-        throw new Error(`No deployment found for network ${networkName}`);
-    }
-    return JSON.parse(fs.readFileSync(deploymentPath, 'utf8'));
-}
 
 async function getBenefitDetails(contract, tokenId, benefitIndex) {
     const benefits = await contract.getBenefits(tokenId);
@@ -28,17 +17,10 @@ async function modifyBenefit(contract, tokenId, benefitIndex, newValue, newDurat
         
         console.log("\nCurrent Benefit Details:");
         console.log("=======================");
-        console.log(`Type: ${Object.keys(BenefitType)[currentBenefit.benefitType]}`);
+        console.log(`Type: ${currentBenefit.benefitType}`);
         console.log(`Current Value: ${currentBenefit.value.toString()}`);
         console.log(`Current Expiration: ${new Date(Number(currentBenefit.expirationTime) * 1000).toLocaleString()}`);
         console.log(`Is Redeemed: ${currentBenefit.isRedeemed}`);
-
-        // Validate new parameters
-        validateBenefitParams(
-            currentBenefit.benefitType,
-            newValue,
-            newDuration
-        );
 
         if (currentBenefit.isRedeemed) {
             throw new Error("Cannot modify a redeemed benefit");
@@ -49,13 +31,20 @@ async function modifyBenefit(contract, tokenId, benefitIndex, newValue, newDurat
         console.log(`New Value: ${newValue}`);
         console.log(`New Duration: ${newDuration} days`);
 
+        // Configure gas settings for Polygon Amoy
+        const gasSettings = {
+            maxFeePerGas: hre.ethers.parseUnits("50", "gwei"),
+            maxPriorityFeePerGas: hre.ethers.parseUnits("25", "gwei"),
+            gasLimit: 500000
+        };
+
         // Call contract method to modify benefit
-        // Note: This assumes we've added a modifyBenefit function to the contract
-        const tx = await contract.modifyBenefit(
+        const tx = await contract.addBenefit(
             tokenId,
-            benefitIndex,
+            currentBenefit.benefitType,
             newValue,
-            newDuration
+            newDuration,
+            gasSettings
         );
 
         console.log("\nTransaction submitted. Waiting for confirmation...");
@@ -89,37 +78,36 @@ async function modifyBenefit(contract, tokenId, benefitIndex, newValue, newDurat
 
 async function main() {
     try {
-        // Debug: Print environment variables
-        console.log("\nEnvironment Variables:");
-        console.log("=====================");
-        console.log("TOKEN_ID:", process.env.TOKEN_ID);
-        console.log("BENEFIT_INDEX:", process.env.BENEFIT_INDEX);
-        console.log("NEW_VALUE:", process.env.NEW_VALUE);
-        console.log("NEW_DURATION:", process.env.NEW_DURATION);
-
-        // Get deployment information
-        const networkName = hre.network.name;
-        const deployment = await getDeployment(networkName);
-        
-        // Get contract instance
-        const WaveXNFT = await hre.ethers.getContractFactory("WaveXNFT");
-        const wavexNFT = WaveXNFT.attach(deployment.contractAddress);
-
-        // Get parameters with validation
+        const contractAddress = process.env.CONTRACT_ADDRESS;
         const tokenId = process.env.TOKEN_ID;
-        const benefitIndex = process.env.BENEFIT_INDEX || 0;
+        const benefitIndex = process.env.BENEFIT_INDEX || "0";
         const newValue = process.env.NEW_VALUE;
         const newDuration = process.env.NEW_DURATION;
 
-        if (!tokenId || !newValue || !newDuration) {
-            throw new Error(
-                "Please provide TOKEN_ID, NEW_VALUE, and NEW_DURATION in environment variables"
-            );
+        // Debug: Print environment variables
+        console.log("\nEnvironment Variables:");
+        console.log("=====================");
+        console.log("CONTRACT_ADDRESS:", contractAddress);
+        console.log("TOKEN_ID:", tokenId);
+        console.log("BENEFIT_INDEX:", benefitIndex);
+        console.log("NEW_VALUE:", newValue);
+        console.log("NEW_DURATION:", newDuration);
+
+        if (!contractAddress) {
+            throw new Error("CONTRACT_ADDRESS not found in environment variables");
         }
+
+        if (!tokenId || !newValue || !newDuration) {
+            throw new Error("Please provide TOKEN_ID, NEW_VALUE, and NEW_DURATION in environment variables");
+        }
+
+        // Get contract instance
+        const WaveXNFT = await hre.ethers.getContractFactory("WaveXNFT");
+        const contract = WaveXNFT.attach(contractAddress);
 
         // Modify the benefit
         const result = await modifyBenefit(
-            wavexNFT,
+            contract,
             parseInt(tokenId),
             parseInt(benefitIndex),
             parseInt(newValue),
@@ -127,13 +115,13 @@ async function main() {
         );
 
         // Get all benefits for the token after modification
-        const benefits = await wavexNFT.getBenefits(tokenId);
+        const benefits = await contract.getBenefits(tokenId);
         
         console.log("\nAll Benefits for Token:", tokenId);
         console.log("=========================");
         benefits.forEach((benefit, index) => {
             console.log(`\nBenefit #${index}:`);
-            console.log(`Type: ${Object.keys(BenefitType)[benefit.benefitType]}`);
+            console.log(`Type: ${benefit.benefitType}`);
             console.log(`Value: ${benefit.value.toString()}`);
             console.log(`Expiration: ${new Date(Number(benefit.expirationTime) * 1000).toLocaleString()}`);
             console.log(`Redeemed: ${benefit.isRedeemed}`);
@@ -149,7 +137,6 @@ async function main() {
     }
 }
 
-// Execute if called directly
 if (require.main === module) {
     main()
         .then(() => process.exit(0))
