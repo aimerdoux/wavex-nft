@@ -14,6 +14,7 @@ async function checkBenefitValidity(contract, tokenId, benefitIndex) {
         console.log("==============================");
         console.log(`Type: ${benefit.benefitType}`);
         console.log(`Available Value: ${benefit.value.toString()}`);
+        console.log(`Remaining Value: ${benefit.remainingValue.toString()}`);
         console.log(`Expiration: ${new Date(Number(benefit.expirationTime) * 1000).toLocaleString()}`);
         console.log(`Already Redeemed: ${benefit.isRedeemed}`);
 
@@ -49,8 +50,8 @@ async function redeemBenefit(contract, tokenId, benefitIndex, redeemAmount) {
         const benefit = await checkBenefitValidity(contract, tokenId, benefitIndex);
 
         // Validate redemption amount
-        if (redeemAmount > benefit.value) {
-            throw new Error(`Insufficient balance. Available: ${benefit.value}, Requested: ${redeemAmount}`);
+        if (redeemAmount > benefit.remainingValue) {
+            throw new Error(`Insufficient balance. Available: ${benefit.remainingValue}, Requested: ${redeemAmount}`);
         }
 
         console.log("\nProcessing Redemption:");
@@ -80,7 +81,7 @@ async function redeemBenefit(contract, tokenId, benefitIndex, redeemAmount) {
         console.log("Transaction Hash:", receipt.hash);
         console.log("Gas Used:", receipt.gasUsed.toString());
         console.log("\nUpdated Benefit Status:");
-        console.log("Remaining Value:", updatedBenefit.value.toString());
+        console.log("Remaining Value:", updatedBenefit.remainingValue.toString());
         console.log("Is Fully Redeemed:", updatedBenefit.isRedeemed);
 
         // Show all benefits after redemption
@@ -91,6 +92,7 @@ async function redeemBenefit(contract, tokenId, benefitIndex, redeemAmount) {
             console.log(`\nBenefit #${index}:`);
             console.log(`Type: ${benefit.benefitType}`);
             console.log(`Value: ${benefit.value.toString()}`);
+            console.log(`Remaining Value: ${benefit.remainingValue.toString()}`);
             console.log(`Expiration: ${new Date(Number(benefit.expirationTime) * 1000).toLocaleString()}`);
             console.log(`Redeemed: ${benefit.isRedeemed}`);
         });
@@ -98,7 +100,7 @@ async function redeemBenefit(contract, tokenId, benefitIndex, redeemAmount) {
         return {
             success: true,
             transactionHash: receipt.hash,
-            remainingValue: updatedBenefit.value.toString(),
+            remainingValue: updatedBenefit.remainingValue.toString(),
             isRedeemed: updatedBenefit.isRedeemed
         };
 
@@ -111,8 +113,8 @@ async function redeemBenefit(contract, tokenId, benefitIndex, redeemAmount) {
 async function main() {
     try {
         const contractAddress = process.env.CONTRACT_ADDRESS;
-        const tokenId = process.env.TOKEN_ID;
-        const benefitIndex = process.env.BENEFIT_INDEX || "0";
+        const tokenId = process.env.REDEEM_TOKEN_ID;
+        const benefitIndex = process.env.REDEEM_BENEFIT_INDEX || "0";
         const redeemAmount = process.env.REDEEM_AMOUNT;
 
         // Debug: Print environment variables

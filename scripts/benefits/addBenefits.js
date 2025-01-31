@@ -5,10 +5,10 @@ require('dotenv').config();
 async function main() {
     try {
         // Get parameters from environment variables
-        const tokenId = process.env.TOKEN_ID;
-        const benefitType = process.env.BENEFIT_TYPE;
-        const value = process.env.BENEFIT_VALUE;
-        const duration = process.env.BENEFIT_DURATION;
+        const tokenId = process.env.SINGLE_BENEFIT_TOKEN_ID;
+        const benefitType = process.env.SINGLE_BENEFIT_TYPE;
+        const value = process.env.SINGLE_BENEFIT_VALUE;
+        const duration = process.env.SINGLE_BENEFIT_DURATION;
         const contractAddress = process.env.CONTRACT_ADDRESS;
 
         // Debug: Print environment variables

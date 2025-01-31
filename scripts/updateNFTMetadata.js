@@ -215,8 +215,8 @@ async function updateNFTMetadata(tokenId) {
 async function main() {
     try {
         // Get token ID from command line or environment
-        const tokenId = process.env.TOKEN_ID 
-            ? parseInt(process.env.TOKEN_ID) 
+        const tokenId = process.env.BASE_TOKEN_ID 
+            ? parseInt(process.env.BASE_TOKEN_ID) 
             : parseInt(process.argv[2]);
 
         if (isNaN(tokenId)) {

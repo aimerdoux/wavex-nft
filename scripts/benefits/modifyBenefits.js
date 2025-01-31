@@ -1,4 +1,3 @@
-// scripts/benefits/modifyBenefits.js
 const hre = require("hardhat");
 require('dotenv').config();
 
@@ -38,10 +37,10 @@ async function modifyBenefit(contract, tokenId, benefitIndex, newValue, newDurat
             gasLimit: 500000
         };
 
-        // Call contract method to modify benefit
-        const tx = await contract.addBenefit(
+        // Call the new updateBenefit method
+        const tx = await contract.updateBenefit(
             tokenId,
-            currentBenefit.benefitType,
+            benefitIndex,
             newValue,
             newDuration,
             gasSettings
@@ -50,13 +49,15 @@ async function modifyBenefit(contract, tokenId, benefitIndex, newValue, newDurat
         console.log("\nTransaction submitted. Waiting for confirmation...");
         const receipt = await tx.wait();
 
-        // Get updated benefit details
-        const updatedBenefit = await getBenefitDetails(contract, tokenId, benefitIndex);
+        // Get updated benefits
+        const updatedBenefitsAfter = await contract.getBenefits(tokenId);
+        const updatedBenefit = updatedBenefitsAfter[benefitIndex];
 
         console.log("\nBenefit Modified Successfully!");
         console.log("=============================");
         console.log(`Transaction Hash: ${receipt.hash}`);
         console.log(`Gas Used: ${receipt.gasUsed.toString()}`);
+        
         console.log("\nUpdated Benefit Details:");
         console.log(`Value: ${updatedBenefit.value.toString()}`);
         console.log(`New Expiration: ${new Date(Number(updatedBenefit.expirationTime) * 1000).toLocaleString()}`);
@@ -78,46 +79,48 @@ async function modifyBenefit(contract, tokenId, benefitIndex, newValue, newDurat
 
 async function main() {
     try {
-        const contractAddress = process.env.CONTRACT_ADDRESS;
-        const tokenId = process.env.TOKEN_ID;
-        const benefitIndex = process.env.BENEFIT_INDEX || "0";
-        const newValue = process.env.NEW_VALUE;
-        const newDuration = process.env.NEW_DURATION;
+        // Get parameters from environment variables with proper prefixes
+        const requiredEnvVars = {
+            CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS,
+            MODIFY_BENEFIT_TOKEN_ID: process.env.MODIFY_BENEFIT_TOKEN_ID,
+            MODIFY_BENEFIT_INDEX: process.env.MODIFY_BENEFIT_INDEX,
+            NEW_VALUE: process.env.NEW_VALUE,
+            NEW_DURATION: process.env.NEW_DURATION
+        };
+
+        // Validate all required environment variables
+        const missingVars = Object.entries(requiredEnvVars)
+            .filter(([key, value]) => !value)
+            .map(([key]) => key);
+
+        if (missingVars.length > 0) {
+            throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+        }
 
         // Debug: Print environment variables
         console.log("\nEnvironment Variables:");
         console.log("=====================");
-        console.log("CONTRACT_ADDRESS:", contractAddress);
-        console.log("TOKEN_ID:", tokenId);
-        console.log("BENEFIT_INDEX:", benefitIndex);
-        console.log("NEW_VALUE:", newValue);
-        console.log("NEW_DURATION:", newDuration);
-
-        if (!contractAddress) {
-            throw new Error("CONTRACT_ADDRESS not found in environment variables");
-        }
-
-        if (!tokenId || !newValue || !newDuration) {
-            throw new Error("Please provide TOKEN_ID, NEW_VALUE, and NEW_DURATION in environment variables");
-        }
+        Object.entries(requiredEnvVars).forEach(([key, value]) => {
+            console.log(`${key}:`, value);
+        });
 
         // Get contract instance
         const WaveXNFT = await hre.ethers.getContractFactory("WaveXNFT");
-        const contract = WaveXNFT.attach(contractAddress);
+        const contract = WaveXNFT.attach(requiredEnvVars.CONTRACT_ADDRESS);
 
         // Modify the benefit
         const result = await modifyBenefit(
             contract,
-            parseInt(tokenId),
-            parseInt(benefitIndex),
-            parseInt(newValue),
-            parseInt(newDuration)
+            parseInt(requiredEnvVars.MODIFY_BENEFIT_TOKEN_ID),
+            parseInt(requiredEnvVars.MODIFY_BENEFIT_INDEX),
+            parseInt(requiredEnvVars.NEW_VALUE),
+            parseInt(requiredEnvVars.NEW_DURATION)
         );
 
         // Get all benefits for the token after modification
-        const benefits = await contract.getBenefits(tokenId);
+        const benefits = await contract.getBenefits(requiredEnvVars.MODIFY_BENEFIT_TOKEN_ID);
         
-        console.log("\nAll Benefits for Token:", tokenId);
+        console.log("\nAll Benefits for Token:", requiredEnvVars.MODIFY_BENEFIT_TOKEN_ID);
         console.log("=========================");
         benefits.forEach((benefit, index) => {
             console.log(`\nBenefit #${index}:`);
@@ -133,6 +136,12 @@ async function main() {
         console.error("\nDetailed error information:");
         console.error("===========================");
         console.error(error);
+        console.error("\nPlease make sure your .env file includes:");
+        console.error("CONTRACT_ADDRESS=0x...");
+        console.error("MODIFY_BENEFIT_TOKEN_ID=3");
+        console.error("MODIFY_BENEFIT_INDEX=0");
+        console.error("NEW_VALUE=2000");
+        console.error("NEW_DURATION=120");
         process.exit(1);
     }
 }

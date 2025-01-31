@@ -18,8 +18,10 @@ contract WaveXNFT is ERC721, ERC721Enumerable, Ownable {
     struct Benefit {
         BenefitType benefitType;
         uint256 value;
+        uint256 remainingValue; // Added for partial redemption tracking
         uint256 expirationTime;
         bool isRedeemed;
+        address proposedBy; // Added to track who proposed the benefit
     }
 
     // Maximum supply of NFTs
@@ -39,9 +41,18 @@ contract WaveXNFT is ERC721, ERC721Enumerable, Ownable {
 
     // Events
     event BenefitAdded(uint256 indexed tokenId, BenefitType benefitType, uint256 value);
+    event BenefitUpdated(uint256 indexed tokenId, uint256 benefitIndex, uint256 newValue, uint256 newExpirationTime);
     event BenefitRedeemed(uint256 indexed tokenId, BenefitType benefitType, uint256 value);
     event MerchantStatusUpdated(address merchant, bool status);
     event TokenURIUpdated(uint256 indexed tokenId, string newURI);
+    event BatchBenefitsAdded(uint256[] tokenIds, BenefitType benefitType, uint256 value, uint256 expirationTime);
+    event DebugRedemption(
+        uint256 tokenId, 
+        uint256 benefitIndex, 
+        uint256 initialRemainingValue, 
+        uint256 redeemAmount, 
+        uint256 finalRemainingValue
+    );
 
     constructor() ERC721("WaveX NFT", "WAVEX") Ownable(msg.sender) {
         _nextTokenId.increment(); // Start from 1
@@ -99,13 +110,66 @@ contract WaveXNFT is ERC721, ERC721Enumerable, Ownable {
         Benefit memory newBenefit = Benefit({
             benefitType: benefitType,
             value: value,
+            remainingValue: value, // Initialize remainingValue
             expirationTime: expirationTime,
-            isRedeemed: false
+            isRedeemed: false,
+            proposedBy: msg.sender // Track who proposed the benefit
         });
         
         _tokenBenefits[tokenId].push(newBenefit);
         
         emit BenefitAdded(tokenId, benefitType, value);
+    }
+
+    // Add benefits to multiple tokens in a batch
+    function addBatchBenefits(
+        uint256[] calldata tokenIds,
+        BenefitType benefitType,
+        uint256 value,
+        uint256 durationInDays
+    ) external onlyOwner {
+        uint256 expirationTime = block.timestamp + (durationInDays * 1 days);
+        
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            require(_tokenExists(tokenIds[i]), "Token does not exist");
+            
+            Benefit memory newBenefit = Benefit({
+                benefitType: benefitType,
+                value: value,
+                remainingValue: value, // Initialize remainingValue
+                expirationTime: expirationTime,
+                isRedeemed: false,
+                proposedBy: msg.sender // Track who proposed the benefit
+            });
+            
+            _tokenBenefits[tokenIds[i]].push(newBenefit);
+        }
+        
+        emit BatchBenefitsAdded(tokenIds, benefitType, value, expirationTime);
+    }
+
+    // Update an existing benefit
+    function updateBenefit(
+        uint256 tokenId,
+        uint256 benefitIndex,
+        uint256 newValue,
+        uint256 durationInDays
+    ) external onlyOwner {
+        require(_tokenExists(tokenId), "Token does not exist");
+        require(benefitIndex < _tokenBenefits[tokenId].length, "Benefit index out of bounds");
+        
+        Benefit storage benefit = _tokenBenefits[tokenId][benefitIndex];
+        
+        // Prevent updating a redeemed benefit
+        require(!benefit.isRedeemed, "Cannot update a redeemed benefit");
+
+        // Update the benefit's value and expiration time
+        benefit.value = newValue;
+        benefit.remainingValue = newValue; // Reset remaining value
+        benefit.expirationTime = block.timestamp + (durationInDays * 1 days);
+        
+        // Emit an event for the benefit update
+        emit BenefitUpdated(tokenId, benefitIndex, newValue, benefit.expirationTime);
     }
 
     // Redeem benefit with optional partial redemption
@@ -128,12 +192,29 @@ contract WaveXNFT is ERC721, ERC721Enumerable, Ownable {
         require(!benefit.isRedeemed, "Benefit already redeemed");
         require(block.timestamp <= benefit.expirationTime, "Benefit expired");
 
+        // Debug: Log initial state
+        uint256 initialRemainingValue = benefit.remainingValue;
+        
         if (benefit.benefitType == BenefitType.MERCHANT_ALLOWANCE) {
-            uint256 redeemAmount = amount == 0 ? benefit.value : amount;
-            require(redeemAmount <= benefit.value, "Insufficient allowance");
+            uint256 redeemAmount = amount == 0 ? benefit.remainingValue : amount;
             
-            benefit.value -= redeemAmount;
-            if (benefit.value == 0) {
+            // Additional validation
+            require(redeemAmount > 0, "Redemption amount must be positive");
+            require(redeemAmount <= benefit.remainingValue, "Insufficient allowance");
+            
+            // Explicit subtraction to ensure state change
+            benefit.remainingValue = benefit.remainingValue - redeemAmount;
+            
+            // Debug: Log state changes
+            emit DebugRedemption(
+                tokenId, 
+                benefitIndex, 
+                initialRemainingValue, 
+                redeemAmount, 
+                benefit.remainingValue
+            );
+            
+            if (benefit.remainingValue == 0) {
                 benefit.isRedeemed = true;
             }
         } else {
