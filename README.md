@@ -176,7 +176,46 @@ npx hardhat test
 # Run specific test suite
 npx hardhat test test/WaveXNFT-Suite.test.js
 ```
+## WaveX NFT Event Manager
 
+### Features
+
+#### Current (MVP)
+- NFT-based event access management
+- Single entrance booking per transaction
+- Cancellation system (48 hours before event)
+- Basic check-in validation
+- Event creation and management
+
+#### Future Enhancements (Post-MVP)
+- Multiple entrance bookings per NFT
+- Enhanced cancellation system per entrance
+- Ticket transfer functionality
+- Automatic event expiration
+- Configurable booking windows
+
+### Usage
+
+#### Booking Process
+1. NFT holder can book one entrance per transaction
+2. Each booking generates a unique entrance number
+3. Cancellations allowed up to 48 hours before event
+4. Check-in validates entrance and prevents double usage
+
+#### Event Management
+1. Create events with:
+   - Name
+   - Location
+   - Date
+   - Maximum capacity
+2. Monitor bookings and attendance
+3. Expire events manually when needed
+
+### Testing Notes
+Current testnet deployment focuses on core MVP features:
+- Single entrance bookings
+- Basic cancellation system
+- Check-in validation
 ## License
 MIT License
 
