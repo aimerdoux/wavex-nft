@@ -1,5 +1,4 @@
 // scripts/cancelBooking.js
-//npx hardhat run scripts/cancelBooking.js --network polygonAmoy
 const hre = require("hardhat");
 require('dotenv').config();
 
@@ -16,30 +15,62 @@ async function main() {
     const WaveXEventManager = await hre.ethers.getContractFactory("WaveXEventManager");
     const eventManager = WaveXEventManager.attach(eventManagerAddress);
 
-    // Check current booking status
-    const isBooked = await eventManager.nftEventBookings(tokenId, eventId);
-    console.log("\nCurrent Booking Status:");
-    console.log(`Token ${tokenId} is${isBooked ? '' : ' not'} booked for event ${eventId}`);
+    // Get all bookings for the token
+    const bookings = await eventManager.getTokenBookings(tokenId);
+    console.log("\nCurrent Bookings:", bookings.length);
 
-    if (isBooked) {
-      console.log("\nCanceling booking...");
-      const tx = await eventManager.cancelBooking(tokenId, eventId, {
-        gasLimit: 500000
-      });
+    // Find the active booking for this event
+    const bookingIndex = bookings.findIndex(booking => 
+      booking.isActive && booking.eventId.toString() === eventId.toString()
+    );
 
-      console.log("Waiting for confirmation...");
-      await tx.wait();
-      console.log("Booking cancelled successfully!");
-
-      // Get updated event details
-      const event = await eventManager.getEventDetails(eventId);
-      console.log("\nUpdated Event Details:");
-      console.log("Name:", event.name);
-      console.log("Booked Count:", event.bookedCount.toString());
-      console.log("Max Capacity:", event.maxCapacity.toString());
-    } else {
-      console.log("No booking found to cancel.");
+    if (bookingIndex === -1) {
+      console.log("No active booking found for this event.");
+      return;
     }
+
+    // Get event details before cancellation
+    const eventBefore = await eventManager.getEventDetails(eventId);
+    console.log("\nCurrent Event Details:");
+    console.log("Name:", eventBefore.name);
+    console.log("Booked Count:", eventBefore.bookedCount.toString());
+    console.log("Event Date:", new Date(Number(eventBefore.date) * 1000).toLocaleString());
+
+    // Check if we're within the cancellation window (48 hours before event)
+    const currentTime = Math.floor(Date.now() / 1000);
+    const cancellationDeadline = Number(eventBefore.date) - (48 * 60 * 60);
+    
+    if (currentTime > cancellationDeadline) {
+      console.log("\nWarning: Cancellation window has closed (must be 48 hours before event)");
+      return;
+    }
+
+    console.log("\nCancelling booking...");
+    console.log("Entrance Number:", bookingIndex);
+
+    const tx = await eventManager.cancelBooking(
+      tokenId, 
+      eventId,
+      bookingIndex,
+      {
+        gasLimit: 500000
+      }
+    );
+
+    console.log("Waiting for confirmation...");
+    await tx.wait();
+    console.log("Booking cancelled successfully!");
+
+    // Get updated event details
+    const eventAfter = await eventManager.getEventDetails(eventId);
+    console.log("\nUpdated Event Details:");
+    console.log("Name:", eventAfter.name);
+    console.log("Booked Count:", eventAfter.bookedCount.toString());
+    console.log("Max Capacity:", eventAfter.maxCapacity.toString());
+
+    // Get cancellation count
+    const cancellations = await eventManager.getCancellationCount(tokenId, eventId);
+    console.log("\nCancellation count for this event:", cancellations.toString());
 
   } catch (error) {
     console.error("\nError:", error);

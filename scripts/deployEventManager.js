@@ -1,5 +1,4 @@
 // scripts/deployEventManager.js
-//npx hardhat run scripts/deployEventManager.js --network polygonAmoy
 const hre = require("hardhat");
 const fs = require('fs');
 const path = require('path');
@@ -14,6 +13,11 @@ async function main() {
             throw new Error("WaveXNFT contract address not found in environment variables");
         }
 
+        // Validate the address format
+        if (!hre.ethers.isAddress(waveXNFTAddress)) {
+            throw new Error("Invalid WaveXNFT contract address format");
+        }
+
         // Get the contract factory
         const WaveXEventManager = await hre.ethers.getContractFactory("WaveXEventManager");
         
@@ -23,15 +27,18 @@ async function main() {
         // Log pre-deployment information
         console.log("\nPre-deployment Information:");
         console.log("==========================");
+        console.log("Network:", hre.network.name);
         console.log("Deployer:", deployer.address);
         console.log("WaveXNFT Address:", waveXNFTAddress);
         
-        // Deploy the contract
+        // Deploy the contract with optimized gas settings
         console.log("\nDeploying contract...");
         const eventManager = await WaveXEventManager.deploy(
             waveXNFTAddress,
             {
-                gasLimit: 3000000
+                gasLimit: 3000000,
+                maxFeePerGas: hre.ethers.parseUnits("50", "gwei"),
+                maxPriorityFeePerGas: hre.ethers.parseUnits("25", "gwei")
             }
         );
 
@@ -42,11 +49,14 @@ async function main() {
 
         // Save deployment info
         const deploymentInfo = {
+            network: hre.network.name,
             contractAddress: contractAddress,
             waveXNFTAddress: waveXNFTAddress,
             deploymentTime: new Date().toISOString(),
             deployer: deployer.address,
-            maxCancellationsAllowed: 1 // Default value
+            maxCancellationsAllowed: 1, // Default value
+            contractVersion: "1.0.0",
+            multipleEntrancesEnabled: true
         };
 
         // Create deployments directory if it doesn't exist
@@ -86,9 +96,23 @@ async function main() {
             }
         }
 
+        // Log deployment summary
+        console.log("\nDeployment Summary:");
+        console.log("===================");
+        console.log("Network:", hre.network.name);
+        console.log("Event Manager Address:", contractAddress);
+        console.log("WaveXNFT Address:", waveXNFTAddress);
+        console.log("Deployer Address:", deployer.address);
+        console.log("\nNext steps:");
+        console.log("1. Set token entrances using setTokenEntrances()");
+        console.log("2. Create events using createEvent()");
+        console.log("3. Update your .env file with EVENT_MANAGER_ADDRESS=" + contractAddress);
+
         return deploymentInfo;
     } catch (error) {
-        console.error("Error during deployment:", error);
+        console.error("\nError during deployment:");
+        console.error("=======================");
+        console.error(error);
         process.exit(1);
     }
 }

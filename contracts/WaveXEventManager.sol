@@ -15,25 +15,50 @@ contract WaveXEventManager is Ownable {
         bool isActive;
     }
 
+    struct Booking {
+        bool isActive;
+        uint256 eventId;
+        uint256 entranceNumber;
+    }
+
     IERC721 public waveXNFT;  // Reference to the existing WaveXNFT contract
     mapping(uint256 => Event) public events;
     mapping(uint256 => mapping(uint256 => bool)) public nftEventBookings;
-    mapping(uint256 => uint256) public nftToEvent;
+    // Track multiple bookings per token
+    mapping(uint256 => Booking[]) public tokenBookings;
+    mapping(uint256 => uint256) public tokenEntrancesAvailable;
     mapping(uint256 => mapping(uint256 => uint256)) public cancellationCount;
     
     uint256 public _eventCounter;
     uint256 public maxCancellationsAllowed = 1;
 
     event EventCreated(uint256 indexed eventId, string name, string location, uint256 date, uint256 maxCapacity);
-    event EntranceBooked(uint256 indexed tokenId, uint256 indexed eventId);
-    event CheckedIn(uint256 indexed tokenId, uint256 indexed eventId);
+    event EntranceBooked(uint256 indexed tokenId, uint256 indexed eventId, uint256 entranceNumber);
+    event CheckedIn(uint256 indexed tokenId, uint256 indexed eventId, uint256 entranceNumber);
     event TicketTransferred(uint256 indexed tokenId, uint256 indexed fromEventId, uint256 indexed toEventId);
     event EventExpired(uint256 indexed eventId);
-    event TicketCancelled(uint256 indexed tokenId, uint256 indexed eventId);
+    event TicketCancelled(uint256 indexed tokenId, uint256 indexed eventId, uint256 entranceNumber);
     event MaxCancellationsUpdated(uint256 newMax);
+    event EntrancesSet(uint256 indexed tokenId, uint256 entrances);
 
     constructor(address _waveXNFT) Ownable(msg.sender) {
         waveXNFT = IERC721(_waveXNFT);
+    }
+
+    function setTokenEntrances(uint256 tokenId, uint256 entrances) external onlyOwner {
+        tokenEntrancesAvailable[tokenId] = entrances;
+        emit EntrancesSet(tokenId, entrances);
+    }
+
+    function getAvailableEntrances(uint256 tokenId) public view returns (uint256) {
+        uint256 totalEntrances = tokenEntrancesAvailable[tokenId];
+        uint256 usedEntrances = 0;
+        for (uint i = 0; i < tokenBookings[tokenId].length; i++) {
+            if (tokenBookings[tokenId][i].isActive) {
+                usedEntrances++;
+            }
+        }
+        return totalEntrances - usedEntrances;
     }
 
     function createEvent(string memory name, string memory location, uint256 date, uint256 maxCapacity) external onlyOwner {
@@ -50,48 +75,56 @@ contract WaveXEventManager is Ownable {
         require(waveXNFT.ownerOf(tokenId) == msg.sender, "Not token owner");
         require(events[eventId].isActive, "Event not active");
         require(events[eventId].bookedCount < events[eventId].maxCapacity, "Event fully booked");
-        require(!nftEventBookings[tokenId][eventId], "Already booked for this event");
+        require(getAvailableEntrances(tokenId) > 0, "No available entrances");
         require(cancellationCount[tokenId][eventId] < maxCancellationsAllowed, "Maximum cancellations reached");
 
+        uint256 entranceNumber = tokenBookings[tokenId].length;
+        tokenBookings[tokenId].push(Booking(true, eventId, entranceNumber));
         nftEventBookings[tokenId][eventId] = true;
-        nftToEvent[tokenId] = eventId;
         events[eventId].bookedCount++;
         
-        emit EntranceBooked(tokenId, eventId);
+        emit EntranceBooked(tokenId, eventId, entranceNumber);
     }
 
-    function cancelBooking(uint256 tokenId, uint256 eventId) external {
+    function cancelBooking(uint256 tokenId, uint256 eventId, uint256 entranceNumber) external {
         require(waveXNFT.ownerOf(tokenId) == msg.sender, "Not token owner");
-        require(nftEventBookings[tokenId][eventId], "Not booked for this event");
+        require(entranceNumber < tokenBookings[tokenId].length, "Invalid entrance number");
+        require(tokenBookings[tokenId][entranceNumber].isActive, "Booking not active");
+        require(tokenBookings[tokenId][entranceNumber].eventId == eventId, "Incorrect event ID");
         require(block.timestamp <= events[eventId].date - 48 hours, "Cancellation window closed");
 
-        nftEventBookings[tokenId][eventId] = false;
+        tokenBookings[tokenId][entranceNumber].isActive = false;
         events[eventId].bookedCount--;
         cancellationCount[tokenId][eventId]++;
         
-        emit TicketCancelled(tokenId, eventId);
+        // Only remove the general booking if no other entrances are booked for this event
+        bool hasOtherBookings = false;
+        for (uint i = 0; i < tokenBookings[tokenId].length; i++) {
+            if (i != entranceNumber && 
+                tokenBookings[tokenId][i].isActive && 
+                tokenBookings[tokenId][i].eventId == eventId) {
+                hasOtherBookings = true;
+                break;
+            }
+        }
+        if (!hasOtherBookings) {
+            nftEventBookings[tokenId][eventId] = false;
+        }
+        
+        emit TicketCancelled(tokenId, eventId, entranceNumber);
     }
 
-    function checkIn(uint256 tokenId, uint256 eventId) external onlyOwner {
-        require(nftEventBookings[tokenId][eventId], "NFT not booked for event");
+    function checkIn(uint256 tokenId, uint256 eventId, uint256 entranceNumber) external onlyOwner {
+        require(entranceNumber < tokenBookings[tokenId].length, "Invalid entrance number");
+        require(tokenBookings[tokenId][entranceNumber].isActive, "Booking not active");
+        require(tokenBookings[tokenId][entranceNumber].eventId == eventId, "Incorrect event ID");
         require(block.timestamp >= events[eventId].date, "Event not started");
         
-        emit CheckedIn(tokenId, eventId);
+        emit CheckedIn(tokenId, eventId, entranceNumber);
     }
 
-    function transferTicket(uint256 tokenId, uint256 newEventId) external {
-        require(waveXNFT.ownerOf(tokenId) == msg.sender, "Not token owner");
-        require(events[newEventId].isActive, "New event not active");
-        require(!nftEventBookings[tokenId][newEventId], "Already booked for new event");
-
-        uint256 oldEventId = nftToEvent[tokenId];
-        nftEventBookings[tokenId][oldEventId] = false;
-        events[oldEventId].bookedCount--;
-        nftEventBookings[tokenId][newEventId] = true;
-        nftToEvent[tokenId] = newEventId;
-        events[newEventId].bookedCount++;
-
-        emit TicketTransferred(tokenId, oldEventId, newEventId);
+    function getTokenBookings(uint256 tokenId) external view returns (Booking[] memory) {
+        return tokenBookings[tokenId];
     }
 
     function expireEvent(uint256 eventId) external onlyOwner {

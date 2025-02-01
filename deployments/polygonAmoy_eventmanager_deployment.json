@@ -1,7 +1,10 @@
 {
-  "contractAddress": "0xC002638795ac3460bEEc5d97280efEd819c27C68",
+  "network": "polygonAmoy",
+  "contractAddress": "0x6234DF9a24C1E4E772e8aee77c82c180dd941ED4",
   "waveXNFTAddress": "0x2fE7aedB7c1Be4e62eF731547c77fC1A157c531f",
-  "deploymentTime": "2025-02-01T01:21:36.590Z",
+  "deploymentTime": "2025-02-01T02:33:32.613Z",
   "deployer": "0xf383A56057374Ae7cb437D61cc86843855F0DdB5",
-  "maxCancellationsAllowed": 1
+  "maxCancellationsAllowed": 1,
+  "contractVersion": "1.0.0",
+  "multipleEntrancesEnabled": true
 }
