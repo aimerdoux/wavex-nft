@@ -1,4 +1,7 @@
 // scripts/deploy.js
+// Deploy the WaveXNFT contract and save deployment info to a JSON file,
+// with optional base URI and initial merchant settings. The contract is also verified 
+
 const hre = require("hardhat");
 const fs = require('fs');
 const path = require('path');
@@ -21,7 +24,9 @@ async function main() {
 
         // Get contract constants
         const maxSupply = await wavexNFT.MAX_SUPPLY();
+        const maxBatchMint = await wavexNFT.MAX_BATCH_MINT();
         console.log(`Maximum supply: ${maxSupply}`);
+        console.log(`Maximum batch mint: ${maxBatchMint}`);
 
         // Set base URI (if provided in environment)
         if (process.env.BASE_URI) {
@@ -46,6 +51,7 @@ async function main() {
             deploymentTime: new Date().toISOString(),
             deployer: (await hre.ethers.getSigners())[0].address,
             maxSupply: maxSupply.toString(),
+            maxBatchMint: maxBatchMint.toString(),
             baseURI: process.env.BASE_URI || "",
             initialMerchant: process.env.INITIAL_MERCHANT || "",
             deploymentBlock: await hre.ethers.provider.getBlockNumber(),
@@ -95,6 +101,7 @@ async function main() {
         console.log(`Network: ${hre.network.name}`);
         console.log(`Contract Address: ${contractAddress}`);
         console.log(`Max Supply: ${maxSupply}`);
+        console.log(`Max Batch Mint: ${maxBatchMint}`);
         if (process.env.BASE_URI) {
             console.log(`Base URI: ${process.env.BASE_URI}`);
         }
@@ -105,7 +112,7 @@ async function main() {
         return deploymentInfo;
     } catch (error) {
         console.error("Error during deployment:", error);
-        throw error;
+        process.exit(1);
     }
 }
 
