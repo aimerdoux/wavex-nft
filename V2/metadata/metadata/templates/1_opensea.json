@@ -1,0 +1,20 @@
+{
+  "name": "WaveX NFT #1",
+  "description": "WaveX Luxury Experience NFT - Access exclusive benefits and experiences",
+  "image": "ipfs://QmYOUREVENTBRITEHASH",
+  "external_url": "https://wavex.com/nft/1",
+  "attributes": [
+    {
+      "trait_type": "Membership Tier",
+      "value": "EVENTBRITE"
+    },
+    {
+      "trait_type": "WaveX Balance",
+      "value": "0.0"
+    },
+    {
+      "trait_type": "Valid Until",
+      "value": "2026-02-05"
+    }
+  ]
+}

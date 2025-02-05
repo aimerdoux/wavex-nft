@@ -1,0 +1,53 @@
+{
+  "formatVersion": 1,
+  "storeCard": {
+    "auxiliaryFields": [
+      {
+        "key": "expiry",
+        "label": "Expires",
+        "value": "2/2026"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "benefits",
+        "label": "Benefits",
+        "value": "Event Access\nEvent Rewards"
+      },
+      {
+        "key": "events",
+        "label": "Active Events",
+        "value": ""
+      }
+    ],
+    "primaryFields": [
+      {
+        "key": "balance",
+        "label": "WaveX Balance",
+        "value": "0.0",
+        "currencyCode": "WAVEX"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "membership",
+        "label": "Membership",
+        "value": "EVENTBRITE"
+      },
+      {
+        "key": "cardType",
+        "label": "Card Type",
+        "value": "VISA"
+      }
+    ]
+  },
+  "passTypeIdentifier": "pass.com.wavex.nft",
+  "teamIdentifier": "JHQFQ72XMR",
+  "organizationName": "WaveX",
+  "backgroundColor": "rgb(48, 48, 48)",
+  "foregroundColor": "rgb(255, 255, 255)",
+  "labelColor": "rgb(255, 255, 255)",
+  "logoText": "WaveX",
+  "serialNumber": "WAVEX-000001",
+  "description": "WaveX Membership Card"
+}
