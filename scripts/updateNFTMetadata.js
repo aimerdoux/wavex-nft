@@ -55,6 +55,22 @@ const NFT_CONFIGS = {
             { trait_type: "Card Type", value: "Diamond" },
             { trait_type: "Valid Until", value: "2025-12-31" }
         ]
+    },
+    4: {
+        name: "WaveX CyberPunk  Pass",
+        description: "The pinnacle of luxury experiences with WaveX Diamond membership",
+        imageFolder: "cyberpunk",
+        imageName: "cyberpunk.jpg",
+        benefits: [
+            { type: "MERCHANT_ALLOWANCE", value: "Unlimited annual spending" },
+            { type: "YACHT_EVENT", value: "Unlimited yacht access" },
+            { type: "CONCIERGE", value: "24/7 personal concierge service" }
+        ],
+        attributes: [
+            { trait_type: "Membership Tier", value: "CYBERPUNK" },
+            { trait_type: "Card Type", value: "Diamond" },
+            { trait_type: "Valid Until", value: "2025-12-31" }
+        ]
     }
 };
 

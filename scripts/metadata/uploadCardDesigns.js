@@ -35,6 +35,16 @@ const CARD_DESIGNS = {
             material: 'Premium Gold Metal',
             features: ['Circuit Pattern', 'EMV Chip', 'NFC Enabled']
         }
+    },
+    CYBERPUNK: {
+        filename: 'cyberpunk.jpg',  // Changed to jpg
+        description: 'WaveX Cyberpunk Membership Card',
+        attributes: {
+            tier: 'CYBERPUNK',
+            style: 'Circuit Cyber',
+            material: 'Premium Cyber Metal',
+            features: ['Circuit Pattern', 'EMV Chip', 'NFC Enabled']
+        }
     }
 };
 
