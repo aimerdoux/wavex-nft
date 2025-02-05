@@ -1,0 +1,35 @@
+{
+  "tokenId": "3",
+  "created": "2025-02-02T03:04:40.667Z",
+  "attributes": {
+    "tokenId": "3",
+    "membershipTier": "PREMIUM",
+    "cardType": "BLACK",
+    "expirationDate": "12/2025",
+    "benefits": [],
+    "designVersion": "v1"
+  },
+  "metadata": {
+    "nft_visual": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\nft_visual\\3.json",
+      "ipfs": {
+        "hash": "QmTW33ZfPd6YhaEJtjec16CHNco25a8GbAxpGrANzhtuEV",
+        "url": "https://gateway.pinata.cloud/ipfs/QmTW33ZfPd6YhaEJtjec16CHNco25a8GbAxpGrANzhtuEV"
+      }
+    },
+    "prepaid_card": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\prepaid_card\\3.json",
+      "ipfs": {
+        "hash": "QmR9JM26uPesJSVSYYH21EeHdj5sYs1hDg1Qhyo8XuXuUR",
+        "url": "https://gateway.pinata.cloud/ipfs/QmR9JM26uPesJSVSYYH21EeHdj5sYs1hDg1Qhyo8XuXuUR"
+      }
+    },
+    "apple_wallet": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\apple_wallet\\3.json",
+      "ipfs": {
+        "hash": "QmYtRAtRhppKYGbheC7dmtVFSrSB5koJaC1gnedLbBzYFy",
+        "url": "https://gateway.pinata.cloud/ipfs/QmYtRAtRhppKYGbheC7dmtVFSrSB5koJaC1gnedLbBzYFy"
+      }
+    }
+  }
+}

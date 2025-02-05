@@ -1,0 +1,35 @@
+{
+  "tokenId": "2",
+  "created": "2025-02-02T03:02:24.847Z",
+  "attributes": {
+    "tokenId": "2",
+    "membershipTier": "BLACK",
+    "cardType": "PLATINUM",
+    "expirationDate": "12/2025",
+    "benefits": [],
+    "designVersion": "v1"
+  },
+  "metadata": {
+    "nft_visual": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\nft_visual\\2.json",
+      "ipfs": {
+        "hash": "QmbkoGUSgsXvNwfLQWT1vXYx9EKK1p2qsqoX5Sazd7D773",
+        "url": "https://gateway.pinata.cloud/ipfs/QmbkoGUSgsXvNwfLQWT1vXYx9EKK1p2qsqoX5Sazd7D773"
+      }
+    },
+    "prepaid_card": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\prepaid_card\\2.json",
+      "ipfs": {
+        "hash": "QmcVSugWWxorUx1kWVheotdtQnyqxvsBw8LDx5FmrXunDs",
+        "url": "https://gateway.pinata.cloud/ipfs/QmcVSugWWxorUx1kWVheotdtQnyqxvsBw8LDx5FmrXunDs"
+      }
+    },
+    "apple_wallet": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\apple_wallet\\2.json",
+      "ipfs": {
+        "hash": "QmTDdYhT7bEPjz9uavVLMFZDQnaTAawPJSUZ6LwE1anDGg",
+        "url": "https://gateway.pinata.cloud/ipfs/QmTDdYhT7bEPjz9uavVLMFZDQnaTAawPJSUZ6LwE1anDGg"
+      }
+    }
+  }
+}

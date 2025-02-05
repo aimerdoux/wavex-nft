@@ -1,0 +1,35 @@
+{
+  "tokenId": "4",
+  "created": "2025-02-02T03:22:29.916Z",
+  "attributes": {
+    "tokenId": "4",
+    "membershipTier": "CYBERPUNK",
+    "cardType": "CYBERPUNK",
+    "expirationDate": "12/2025",
+    "benefits": [],
+    "designVersion": "v1"
+  },
+  "metadata": {
+    "nft_visual": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\nft_visual\\4.json",
+      "ipfs": {
+        "hash": "QmNXpfm3ze8MfYvGWZDDJ7yE8QnCe4FT1f7vryHBkBND7s",
+        "url": "https://gateway.pinata.cloud/ipfs/QmNXpfm3ze8MfYvGWZDDJ7yE8QnCe4FT1f7vryHBkBND7s"
+      }
+    },
+    "prepaid_card": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\prepaid_card\\4.json",
+      "ipfs": {
+        "hash": "QmYmoJKujENZB1J3ShaYtA7ZQYAhLnK5w6ayb9WW8TPXLE",
+        "url": "https://gateway.pinata.cloud/ipfs/QmYmoJKujENZB1J3ShaYtA7ZQYAhLnK5w6ayb9WW8TPXLE"
+      }
+    },
+    "apple_wallet": {
+      "local": "C:\\Users\\OHG\\Documents\\wavex-nft\\metadata\\apple_wallet\\4.json",
+      "ipfs": {
+        "hash": "QmfUSw1rCthqVaGKDtg4KkfUnHNBSogPDj86iFfsWiaJqJ",
+        "url": "https://gateway.pinata.cloud/ipfs/QmfUSw1rCthqVaGKDtg4KkfUnHNBSogPDj86iFfsWiaJqJ"
+      }
+    }
+  }
+}

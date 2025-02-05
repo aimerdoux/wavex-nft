@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.wavex.card",
+  "serialNumber": "WAVEX-2",
+  "description": "WaveX BLACK Card",
+  "organizationName": "WaveX",
+  "logoText": "WaveX",
+  "foregroundColor": "rgb(255, 255, 255)",
+  "backgroundColor": "rgb(0, 0, 0)",
+  "generic": {
+    "primaryFields": [
+      {
+        "key": "balance",
+        "label": "BALANCE",
+        "value": "$ 0.00",
+        "currencyCode": "USD"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "membership",
+        "label": "MEMBERSHIP",
+        "value": "BLACK"
+      },
+      {
+        "key": "cardType",
+        "label": "TYPE",
+        "value": "PLATINUM"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "expiry",
+        "label": "EXPIRES",
+        "value": "12/2025"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "benefits",
+        "label": "BENEFITS",
+        "value": "No benefits assigned"
+      }
+    ]
+  }
+}

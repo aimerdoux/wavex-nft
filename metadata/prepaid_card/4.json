@@ -1,0 +1,23 @@
+{
+  "name": "WaveX Prepaid Card #4",
+  "cardNetwork": "CYBERPUNK",
+  "cardProduct": "WaveX CYBERPUNK",
+  "maskedNumber": "****-****-****-0000",
+  "expirationDate": "12/2025",
+  "cardStatus": "ACTIVE",
+  "balanceTracking": {
+    "currentBalance": "0.00",
+    "currency": "USD",
+    "lastUpdated": "2025-02-02T03:22:28.264Z"
+  },
+  "securityFeatures": {
+    "tokenized": true,
+    "secureElement": true,
+    "contactless": true
+  },
+  "cardDesign": {
+    "template": "cyberpunk",
+    "primaryColor": "#000000",
+    "textColor": "#FFFFFF"
+  }
+}
