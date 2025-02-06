@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 function formatDate(months) {
     const date = new Date();
@@ -8,18 +8,18 @@ function formatDate(months) {
 }
 
 async function main() {
-    console.log('Starting template metadata generation...');
+    console.log("Starting template metadata generation...");
     
     // Load template configurations
-    const configPath = path.join(process.cwd(), 'V2', 'config', 'templates.json');
-    const templateConfigs = JSON.parse(fs.readFileSync(configPath, 'utf8')).templates;
+    const configPath = path.join(process.cwd(), "V2", "config", "templates.json");
+    const templateConfigs = JSON.parse(fs.readFileSync(configPath, "utf8")).templates;
     
     // Create output directory
-    const outputDir = path.join(process.cwd(), 'V2', 'metadata', 'templates');
+    const outputDir = path.join(process.cwd(), "V2", "metadata", "templates");
     fs.mkdirSync(outputDir, { recursive: true });
 
     for (const [id, config] of Object.entries(templateConfigs)) {
-        console.log(\\nGenerating metadata for \ template (ID: \)\);
+        console.log(`\nGenerating metadata for ${config.name} template (ID: ${id})`);
         
         try {
             // Generate metadata for each platform
@@ -27,8 +27,8 @@ async function main() {
 
             // OpenSea metadata
             metadata.opensea = {
-                name: \WaveX \ Card\,
-                description: \WaveX \ membership card with \% discount\,
+                name: `WaveX ${config.name} Card`,
+                description: `WaveX ${config.name} membership card with ${config.discount}% discount`,
                 image: config.cardDesign.image,
                 attributes: [
                     {
@@ -48,8 +48,8 @@ async function main() {
 
             // NFT Visual metadata
             metadata.nftVisual = {
-                name: \WaveX \ Card\,
-                description: \WaveX \ membership card\,
+                name: `WaveX ${config.name} Card`,
+                description: `WaveX ${config.name} membership card`,
                 image: config.cardDesign.image,
                 attributes: [
                     {
@@ -64,18 +64,21 @@ async function main() {
                 properties: {
                     tier: config.name,
                     benefits: config.benefits,
-                    wavexBalance: config.baseBalance
+                    wavexBalance: config.baseBalance,
+                    cardDesign: config.cardDesign
                 }
             };
 
             // Save metadata
-            const filePath = path.join(outputDir, \\.json\);
+            const filePath = path.join(outputDir, `${id}.json`);
             fs.writeFileSync(filePath, JSON.stringify(metadata, null, 2));
-            console.log(\✅ \ template metadata generated successfully\);
+            console.log(`✅ ${config.name} template metadata generated successfully`);
         } catch (error) {
-            console.error(\❌ Error generating \ template metadata:\, error);
+            console.error(`❌ Error generating ${config.name} template metadata:`, error);
         }
     }
+
+    console.log("\n✨ All template metadata generated successfully!");
 }
 
 main()
