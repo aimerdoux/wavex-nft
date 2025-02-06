@@ -124,7 +124,7 @@ const TEMPLATE_COLORS = {
     }
 };
 
-async function generateMetadata(templateId, tokenId, options = {}) {
+async function generateMetadata(templateId, tokenId = "template", options = {}) {
     try {
         // Get contract and template details
         const contractAddress = process.env.WAVEX_NFT_V2_ADDRESS;
@@ -135,22 +135,13 @@ async function generateMetadata(templateId, tokenId, options = {}) {
         const templateName = template.name.toUpperCase();
         const baseBalance = hre.ethers.formatEther(template.baseBalance);
 
-        // Get template config
-        const templateConfig = getTemplateConfig(templateId); // Added template config
-        const expirationDate = new Date();
-        expirationDate.setMonth(expirationDate.getMonth() + parseInt(templateConfig.validity)); // Updated expiration logic
+        // Ensure tokenId is a string for string operations
+        const formattedTokenId = tokenId.toString();
 
-        // Get token balance and events if token exists
-        let currentBalance = baseBalance;
-        let tokenEvents = [];
-        if (tokenId && options.includeTokenData) {
-            try {
-                currentBalance = hre.ethers.formatEther(await wavexNFT.tokenBalance(tokenId));
-                tokenEvents = await wavexNFT.getTokenEvents(tokenId);
-            } catch (error) {
-                console.log("Token not minted yet, using template defaults");
-            }
-        }
+        // Get template config
+        const templateConfig = getTemplateConfig(templateId);
+        const expirationDate = new Date();
+        expirationDate.setMonth(expirationDate.getMonth() + parseInt(templateConfig.validity));
 
         // Generate metadata for each platform
         const metadata = {};
@@ -158,9 +149,9 @@ async function generateMetadata(templateId, tokenId, options = {}) {
         // OpenSea metadata
         metadata.opensea = {
             ...METADATA_TEMPLATES.opensea,
-            name: METADATA_TEMPLATES.opensea.name.replace('{id}', tokenId),
-            external_url: METADATA_TEMPLATES.opensea.external_url.replace('{id}', tokenId),
-            image: templateConfig.cardDesign.image, // Updated with template config
+            name: METADATA_TEMPLATES.opensea.name.replace('{id}', formattedTokenId),
+            external_url: METADATA_TEMPLATES.opensea.external_url.replace('{id}', formattedTokenId),
+            image: templateConfig.cardDesign.image,
             attributes: [
                 {
                     trait_type: "Membership Tier",
@@ -168,7 +159,7 @@ async function generateMetadata(templateId, tokenId, options = {}) {
                 },
                 {
                     trait_type: "WaveX Balance",
-                    value: currentBalance
+                    value: baseBalance
                 },
                 {
                     trait_type: "Valid Until",
@@ -180,27 +171,27 @@ async function generateMetadata(templateId, tokenId, options = {}) {
         // Prepaid Card metadata
         metadata.prepaidCard = {
             ...METADATA_TEMPLATES.prepaidCard,
-            name: METADATA_TEMPLATES.prepaidCard.name.replace('{id}', tokenId),
+            name: METADATA_TEMPLATES.prepaidCard.name.replace('{id}', formattedTokenId),
             cardProduct: METADATA_TEMPLATES.prepaidCard.cardProduct.replace('{template}', templateName),
             expirationDate: expirationDate.toISOString(),
             balanceTracking: {
                 ...METADATA_TEMPLATES.prepaidCard.balanceTracking,
-                currentBalance: currentBalance,
+                currentBalance: baseBalance,
                 lastUpdated: new Date().toISOString()
             },
             cardDesign: {
                 template: templateName.toLowerCase(),
-                primaryColor: templateConfig.cardDesign.primaryColor, // Updated with template config
-                textColor: templateConfig.cardDesign.textColor // Updated with template config
+                primaryColor: templateConfig.cardDesign.primaryColor,
+                textColor: templateConfig.cardDesign.textColor
             }
         };
 
         // NFT Visual metadata
         metadata.nftVisual = {
             ...METADATA_TEMPLATES.nftVisual,
-            name: METADATA_TEMPLATES.nftVisual.name.replace('{id}', tokenId),
+            name: METADATA_TEMPLATES.nftVisual.name.replace('{id}', formattedTokenId),
             description: METADATA_TEMPLATES.nftVisual.description.replace('{template}', templateName),
-            image: templateConfig.cardDesign.image, // Updated with template config
+            image: templateConfig.cardDesign.image,
             attributes: [
                 {
                     trait_type: "Membership Tier",
@@ -208,7 +199,7 @@ async function generateMetadata(templateId, tokenId, options = {}) {
                 },
                 {
                     trait_type: "WaveX Balance",
-                    value: currentBalance
+                    value: baseBalance
                 },
                 {
                     trait_type: "Issue Date",
@@ -218,23 +209,23 @@ async function generateMetadata(templateId, tokenId, options = {}) {
             properties: {
                 ...METADATA_TEMPLATES.nftVisual.properties,
                 tier: templateName,
-                benefits: templateConfig.benefits, // Updated with template config
-                wavexBalance: currentBalance,
-                events: tokenEvents
+                benefits: templateConfig.benefits,
+                wavexBalance: baseBalance,
+                events: []
             }
         };
 
         // Apple Wallet metadata
         metadata.appleWallet = {
             ...METADATA_TEMPLATES.appleWallet,
-            serialNumber: `WAVEX-${tokenId.padStart(6, '0')}`,
+            serialNumber: `WAVEX-${formattedTokenId.padStart(6, '0')}`,
             storeCard: {
                 ...METADATA_TEMPLATES.appleWallet.storeCard,
                 primaryFields: [
                     {
                         key: "balance",
                         label: "WaveX Balance",
-                        value: currentBalance,
+                        value: baseBalance,
                         currencyCode: "WAVEX"
                     }
                 ],
@@ -261,12 +252,12 @@ async function generateMetadata(templateId, tokenId, options = {}) {
                     {
                         key: "benefits",
                         label: "Benefits",
-                        value: templateConfig.benefits.join('\n') // Updated with template config
+                        value: templateConfig.benefits.join('\n')
                     },
                     {
                         key: "events",
                         label: "Active Events",
-                        value: tokenEvents.join('\n')
+                        value: ""
                     }
                 ]
             }
@@ -274,26 +265,13 @@ async function generateMetadata(templateId, tokenId, options = {}) {
 
         // Handle file output
         if (options.output) {
-            const outputDir = path.join(process.cwd(), 'metadata', options.output);
+            const outputDir = path.join(process.cwd(), options.output);
             fs.mkdirSync(outputDir, { recursive: true });
 
             for (const [platform, data] of Object.entries(metadata)) {
-                const filePath = path.join(outputDir, `${tokenId}_${platform}.json`);
+                const filePath = path.join(outputDir, `${templateId}_${platform}.json`);
                 fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
             }
-        }
-
-        // Upload to IPFS if requested
-        if (options.uploadToIPFS) {
-            const ipfsResults = {};
-            for (const [platform, data] of Object.entries(metadata)) {
-                const result = await uploadToIPFS(
-                    JSON.stringify(data),
-                    `${tokenId}_${platform}.json`
-                );
-                ipfsResults[platform] = result;
-            }
-            metadata.ipfsHashes = ipfsResults;
         }
 
         return metadata;
@@ -306,26 +284,28 @@ async function generateMetadata(templateId, tokenId, options = {}) {
 async function main() {
     try {
         // Get configuration from environment variables
-        const templateId = process.env.TEMPLATE_ID || process.env.TEMPLATE_GOLD_ID || "1";
-        const tokenId = process.env.TOKEN_ID || "1";
-        const platform = process.env.METADATA_PLATFORM || "all";
-        const outputDir = process.env.METADATA_OUTPUT_DIR;
+        const templateId = process.env.TEMPLATE_ID;
+        if (!templateId) {
+            throw new Error("TEMPLATE_ID is required");
+        }
+
+        const outputDir = process.env.METADATA_OUTPUT_DIR || 'templates';
         const uploadToIPFS = process.env.UPLOAD_TO_IPFS === "true";
         const includeTokenData = process.env.INCLUDE_TOKEN_DATA === "true";
+        const platform = process.env.METADATA_PLATFORM || "all";
 
         console.log("\nGenerating metadata with the following configuration:");
         console.log("=================================================");
         console.log("Template ID:", templateId);
-        console.log("Token ID:", tokenId);
         console.log("Platform:", platform);
-        console.log("Output Directory:", outputDir || "None (console output only)");
+        console.log("Output Directory:", outputDir);
         console.log("Upload to IPFS:", uploadToIPFS);
         console.log("Include Token Data:", includeTokenData);
         console.log("=================================================\n");
 
         const metadata = await generateMetadata(
             templateId,
-            tokenId,
+            undefined, // Don't pass tokenId for template generation
             {
                 output: outputDir,
                 uploadToIPFS,
@@ -334,6 +314,7 @@ async function main() {
             }
         );
 
+        // Output results
         if (platform !== "all" && metadata[platform]) {
             console.log(JSON.stringify(metadata[platform], null, 2));
         } else {
