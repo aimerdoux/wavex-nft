@@ -1,51 +1,79 @@
-const hre = require('hardhat');
-const { generateMetadata } = require('../scripts/templates/templateMetadata');
+const fs = require('fs');
+const path = require('path');
+
+function formatDate(months) {
+    const date = new Date();
+    date.setMonth(date.getMonth() + parseInt(months));
+    return date.toISOString();
+}
 
 async function main() {
-    const templates = [
-        {
-            id: '1',
-            name: 'Black',
-            discount: '0'
-        },
-        {
-            id: '2',
-            name: 'Gold',
-            discount: '6'
-        },
-        {
-            id: '3',
-            name: 'Platinum',
-            discount: '12'
-        },
-        {
-            id: '4',
-            name: 'Custom',
-            discount: '0'
-        }
-    ];
-
     console.log('Starting template metadata generation...');
+    
+    // Load template configurations
+    const configPath = path.join(process.cwd(), 'V2', 'config', 'templates.json');
+    const templateConfigs = JSON.parse(fs.readFileSync(configPath, 'utf8')).templates;
+    
+    // Create output directory
+    const outputDir = path.join(process.cwd(), 'V2', 'metadata', 'templates');
+    fs.mkdirSync(outputDir, { recursive: true });
 
-    for (const template of templates) {
-        console.log(\nGenerating metadata for  template (ID: ));
-        
-        process.env.TEMPLATE_ID = template.id;
-        process.env.METADATA_OUTPUT_DIR = 'metadata/templates';
+    for (const [id, config] of Object.entries(templateConfigs)) {
+        console.log(\\nGenerating metadata for \ template (ID: \)\);
         
         try {
-            await generateMetadata(
-                template.id,
-                undefined,
-                {
-                    output: process.env.METADATA_OUTPUT_DIR,
-                    uploadToIPFS: false,
-                    includeTokenData: false
+            // Generate metadata for each platform
+            const metadata = {};
+
+            // OpenSea metadata
+            metadata.opensea = {
+                name: \WaveX \ Card\,
+                description: \WaveX \ membership card with \% discount\,
+                image: config.cardDesign.image,
+                attributes: [
+                    {
+                        trait_type: "Membership Tier",
+                        value: config.name
+                    },
+                    {
+                        trait_type: "WaveX Balance",
+                        value: config.baseBalance
+                    },
+                    {
+                        trait_type: "Valid Until",
+                        value: formatDate(config.validity)
+                    }
+                ]
+            };
+
+            // NFT Visual metadata
+            metadata.nftVisual = {
+                name: \WaveX \ Card\,
+                description: \WaveX \ membership card\,
+                image: config.cardDesign.image,
+                attributes: [
+                    {
+                        trait_type: "Membership Tier",
+                        value: config.name
+                    },
+                    {
+                        trait_type: "WaveX Balance",
+                        value: config.baseBalance
+                    }
+                ],
+                properties: {
+                    tier: config.name,
+                    benefits: config.benefits,
+                    wavexBalance: config.baseBalance
                 }
-            );
-            console.log(✅  template metadata generated successfully);
+            };
+
+            // Save metadata
+            const filePath = path.join(outputDir, \\.json\);
+            fs.writeFileSync(filePath, JSON.stringify(metadata, null, 2));
+            console.log(\✅ \ template metadata generated successfully\);
         } catch (error) {
-            console.error(❌ Error generating  template metadata:, error);
+            console.error(\❌ Error generating \ template metadata:\, error);
         }
     }
 }

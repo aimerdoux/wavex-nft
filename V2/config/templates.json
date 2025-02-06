@@ -1,0 +1,56 @@
+{
+    "templates": {
+        "1": {
+            "name": "Black",
+            "discount": "0",
+            "baseBalance": "0",
+            "validity": "12",
+            "cardDesign": {
+                "primaryColor": "#000000",
+                "textColor": "#FFFFFF",
+                "image": "ipfs://QmTemplateBlack"
+            },
+            "benefits": []
+        },
+        "2": {
+            "name": "Gold",
+            "discount": "6",
+            "baseBalance": "100",
+            "validity": "12",
+            "cardDesign": {
+                "primaryColor": "#FFD700",
+                "textColor": "#000000",
+                "image": "ipfs://QmTemplateGold"
+            },
+            "benefits": ["6% Discount on all purchases"]
+        },
+        "3": {
+            "name": "Platinum",
+            "discount": "12",
+            "baseBalance": "500",
+            "validity": "12",
+            "cardDesign": {
+                "primaryColor": "#E5E4E2",
+                "textColor": "#000000",
+                "image": "ipfs://QmTemplatePlatinum"
+            },
+            "benefits": [
+                "12% Discount on all purchases",
+                "Priority Support",
+                "VIP Access"
+            ]
+        },
+        "4": {
+            "name": "Custom",
+            "discount": "0",
+            "baseBalance": "0",
+            "validity": "12",
+            "cardDesign": {
+                "primaryColor": "#FFFFFF",
+                "textColor": "#000000",
+                "image": "ipfs://QmTemplateCustom"
+            },
+            "benefits": ["Event Access"]
+        }
+    }
+}
