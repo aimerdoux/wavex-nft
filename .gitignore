@@ -1,9 +1,24 @@
 # Environment files
-V2.env
+V2/V2.env
+V2/.env
 *.env
-.env*
-!.env.example
+!V2.env.example
 
-# Security and secrets
-**/private*
-**/secrets*
+# Dependencies
+node_modules/
+V2/node_modules/
+
+# Build artifacts
+*.pkpass
+
+# Development
+.DS_Store
+.idea/
+.vscode/
+
+# Generated metadata
+V2/templates/
+V2/metadata/metadata/templates/*.json
+
+# Tools
+bfg.jar
