@@ -1,13 +1,9 @@
-# Build artifacts
-*.pkpass
-node_modules/
-.env
-.DS_Store
-passes/*.zip
+# Environment files
+V2.env
+*.env
+.env*
+!.env.example
 
-# IDE files
-.vscode/
-.idea/
-
-# Logs
-*.log
+# Security and secrets
+**/private*
+**/secrets*
