@@ -1,0 +1,34 @@
+{
+	"formatVersion": 1,
+	"serialNumber": "WAVEX-001",
+	"passTypeIdentifier": "pass.com.wavex.nft",
+	"teamIdentifier": "JHQFQ72XMR",
+	"description": "WaveX Membership Card",
+	"organizationName": "DIAMOND KINGDOM LOGISTICS, CO.",
+	"foregroundColor": "#ffffff",
+	"backgroundColor": "#1595d7",
+	"labelColor": "#ffffff",
+	"logoText": "WaveX",
+	"barcode": {
+	  "message": "https://wavex.com/checkin?user=WAVEX-001",
+	  "format": "PKBarcodeFormatQR",
+	  "messageEncoding": "iso-8859-1",
+	  "altText": "WaveX Membership Check-in"
+	},
+	"eventTicket": {
+	  "headerFields": [
+		{ "key": "eventDateTime", "label": "DATE", "value": "Feb 10, 2025" }
+	  ],
+	  "primaryFields": [
+		{ "key": "eventGuest", "label": "Guest", "value": "WaveX Member" }
+	  ],
+	  "secondaryFields": [
+		{ "key": "eventVenue", "label": "Venue", "value": "WaveX Yacht Event" }
+	  ],
+	  "backFields": [
+		{ "key": "eventBackInfo", "label": "Event Info", "value": "Bring ID. Pass is unique." }
+	  ]
+	},
+	"suppressStripShine": true
+  }
+  

@@ -24,7 +24,8 @@
     "adm-zip": "^0.5.16",
     "axios": "^1.7.9",
     "express": "^4.21.2",
-    "form-data": "^4.0.1"
+    "form-data": "^4.0.1",
+    "passkit-generator": "^3.3.1"
   },
   "directories": {
     "test": "test"

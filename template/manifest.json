@@ -1,5 +1,7 @@
 {
-  "pass.json": "ef277d6edd6e02726cb7e743675b73fd35428335",
-  "logo.png": "73bc59fd25efceb13d0694c9f8c226b776aa008d",
-  "icon.png": "dd04d46933dbac36a6790573193ff9f06fea6ad6"
+  "pass.json": "cd67d84ac1842837cb6dcd48070ac95665af6843",
+  "logo.png": "67b10f7738c22f27713d88df0d9f8bb908cd5dcf",
+  "icon.png": "1199766b6b73b42711646bf7f8efe44a78eb57bc",
+  "icon@2x.png": "671f73cd69d75f407655e2f7fa26f57a37bbf7cb",
+  "icon@3x.png": "1b06d521bfe5058e91994ceeb60dd09358e3f544"
 }

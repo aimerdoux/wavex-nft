@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.wavex.nft",
+  "teamIdentifier": "JHQFQ72XMR",
+  "organizationName": "DIAMOND KINGDOM LOGISTICS, CO.",
+  "description": "WaveX Membership Card",
+  "serialNumber": "WAVEX-001",
+  "backgroundColor": "rgb(0, 0, 0)",
+  "foregroundColor": "rgb(255, 255, 255)",
+  "labelColor": "rgb(255, 215, 0)",
+  "logoText": "WaveX",
+  "storeCard": {
+    "primaryFields": [
+      {
+        "key": "balance",
+        "label": "Balance",
+        "value": "$1000.00"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "membership",
+        "label": "Membership",
+        "value": "GOLD"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "waveXIcon",
+        "label": "WaveX",
+        "value": " "
+      }
+    ]
+  },
+  "barcode": {
+    "format": "PKBarcodeFormatQR",
+    "message": "https://wavex.com/checkin?user=WAVEX-001",
+    "messageEncoding": "iso-8859-1"
+  }
+}

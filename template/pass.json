@@ -9,6 +9,7 @@
     "foregroundColor": "rgb(255, 255, 255)",
     "labelColor": "rgb(255, 215, 0)",
     "logoText": "WaveX",
+    "icon": "icon.png",
     "storeCard": {
       "primaryFields": [
         {
@@ -26,16 +27,12 @@
       ],
       "auxiliaryFields": [
         {
-          "key": "qr",
-          "label": "Check-In",
-          "value": "Scan QR at Events"
+          "key": "waveXIcon",
+          "label": "WaveX",
+          "value": " "
         }
-      ]
-    },
-    "barcode": {
-      "format": "PKBarcodeFormatQR",
-      "message": "https://wavex.com/checkin?user=WAVEX-001",
-      "messageEncoding": "iso-8859-1"
+      ],
+      "thumbnailImage": "icon.png"
     }
   }
   
