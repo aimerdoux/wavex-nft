@@ -1,0 +1,129 @@
+{
+  "opensea": {
+    "name": "WaveX Platinum Card",
+    "description": "WaveX Platinum membership card with 12% discount",
+    "image": "ipfs://QmTemplatePlatinum",
+    "attributes": [
+      {
+        "trait_type": "Membership Tier",
+        "value": "Platinum"
+      },
+      {
+        "trait_type": "WaveX Balance",
+        "value": "500"
+      },
+      {
+        "trait_type": "Valid Until",
+        "value": "2026-02-06T20:26:15.990Z"
+      }
+    ]
+  },
+  "nftVisual": {
+    "name": "WaveX Platinum Card",
+    "description": "WaveX Platinum membership card",
+    "image": "ipfs://QmTemplatePlatinum",
+    "attributes": [
+      {
+        "trait_type": "Membership Tier",
+        "value": "Platinum"
+      },
+      {
+        "trait_type": "WaveX Balance",
+        "value": "500"
+      }
+    ],
+    "properties": {
+      "tier": "Platinum",
+      "benefits": [
+        "12% Discount on all purchases",
+        "Priority Support",
+        "VIP Access"
+      ],
+      "wavexBalance": "500",
+      "cardDesign": {
+        "primaryColor": "#E5E4E2",
+        "textColor": "#000000",
+        "image": "ipfs://QmTemplatePlatinum"
+      }
+    }
+  },
+  "appleWallet": {
+    "formatVersion": 1,
+    "passTypeIdentifier": "pass.com.wavex.platinum",
+    "serialNumber": "TEMPLATE-3",
+    "teamIdentifier": "WAVEX2024",
+    "organizationName": "WaveX",
+    "description": "WaveX Platinum Card",
+    "logoText": "WaveX",
+    "foregroundColor": "#000000",
+    "backgroundColor": "#E5E4E2",
+    "storeCard": {
+      "primaryFields": [
+        {
+          "key": "balance",
+          "label": "BALANCE",
+          "value": "500",
+          "currencyCode": "USD"
+        }
+      ],
+      "secondaryFields": [
+        {
+          "key": "tier",
+          "label": "TIER",
+          "value": "Platinum"
+        },
+        {
+          "key": "discount",
+          "label": "DISCOUNT",
+          "value": "12%"
+        }
+      ],
+      "backFields": [
+        {
+          "key": "validUntil",
+          "label": "VALID UNTIL",
+          "value": "2026-02-06T20:26:15.990Z"
+        },
+        {
+          "key": "benefit0",
+          "label": "BENEFIT",
+          "value": "12% Discount on all purchases"
+        },
+        {
+          "key": "benefit1",
+          "label": "BENEFIT",
+          "value": "Priority Support"
+        },
+        {
+          "key": "benefit2",
+          "label": "BENEFIT",
+          "value": "VIP Access"
+        }
+      ]
+    }
+  },
+  "prepaidCard": {
+    "templateId": "3",
+    "cardType": "Platinum",
+    "baseBalance": "500",
+    "discount": "12",
+    "validUntil": "2026-02-06T20:26:15.990Z",
+    "style": {
+      "colors": {
+        "primary": "#E5E4E2",
+        "text": "#000000"
+      },
+      "image": "ipfs://QmTemplatePlatinum"
+    },
+    "features": {
+      "benefits": [
+        "12% Discount on all purchases",
+        "Priority Support",
+        "VIP Access"
+      ],
+      "transferable": true,
+      "rechargeable": true,
+      "upgradeable": false
+    }
+  }
+}

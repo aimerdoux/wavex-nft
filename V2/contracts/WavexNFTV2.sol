@@ -19,6 +19,9 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         string name;
         uint256 baseBalance;
         uint256 price;
+        uint256 discount;      // Added for discount percentages
+        bool isVIP;           // Added for VIP access
+        string metadataURI;   // Added for template-specific metadata
         bool active;
     }
 
@@ -57,13 +60,33 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
     event EventPurchased(uint256 indexed tokenId, uint256 indexed eventId);
     event TransactionRecorded(uint256 indexed tokenId, string transactionType, uint256 amount);
     event SupportedTokenAdded(address indexed tokenAddress);
+    event TemplateUpdated(
+        uint256 indexed templateId,
+        string name,
+        uint256 baseBalance,
+        uint256 price,
+        uint256 discount,
+        bool isVIP,
+        string metadataURI,
+        bool active
+    );
+    event TemplateCreated(
+        uint256 indexed templateId,
+        string name,
+        uint256 baseBalance,
+        uint256 price,
+        uint256 discount,
+        bool isVIP,
+        string metadataURI,
+        bool active
+    );
 
     constructor() ERC721("WaveX NFT V2", "WAVEX2") {
         // Initialize with default templates
-        _addTemplate(1, "Gold", 2000 ether, 2000 ether, true);
-        _addTemplate(2, "Platinum", 5000 ether, 5000 ether, true);
-        _addTemplate(3, "Black", 10000 ether, 10000 ether, true);
-        _addTemplate(4, "EventBrite", 0, 0, true);
+        _addTemplate(1, "Gold", 2000 ether, 2000 ether, 0, false, "", true);
+        _addTemplate(2, "Platinum", 5000 ether, 5000 ether, 0, false, "", true);
+        _addTemplate(3, "Black", 10000 ether, 10000 ether, 0, false, "", true);
+        _addTemplate(4, "EventBrite", 0, 0, 0, false, "", true);
     }
 
     // Add a supported token
@@ -79,9 +102,12 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         string memory name,
         uint256 baseBalance,
         uint256 price,
+        uint256 discount,
+        bool isVIP,
+        string memory metadataURI,
         bool active
     ) external onlyOwner {
-        _addTemplate(templateId, name, baseBalance, price, active);
+        _addTemplate(templateId, name, baseBalance, price, discount, isVIP, metadataURI, active);
     }
 
     // Internal function to add a template
@@ -90,9 +116,95 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         string memory name,
         uint256 baseBalance,
         uint256 price,
+        uint256 discount,
+        bool isVIP,
+        string memory metadataURI,
         bool active
     ) internal {
-        templates[templateId] = Template(name, baseBalance, price, active);
+        require(templateId > 0, "Invalid template ID");
+        require(bytes(name).length > 0, "Name cannot be empty");
+        require(discount <= 100, "Invalid discount percentage");
+        require(templates[templateId].baseBalance == 0, "Template already exists");
+
+        templates[templateId] = Template(
+            name,
+            baseBalance,
+            price,
+            discount,
+            isVIP,
+            metadataURI,
+            active
+        );
+
+        emit TemplateCreated(
+            templateId,
+            name,
+            baseBalance,
+            price,
+            discount,
+            isVIP,
+            metadataURI,
+            active
+        );
+    }
+
+    // Modify an existing template
+    function modifyTemplate(
+        uint256 templateId,
+        string memory name,
+        uint256 baseBalance,
+        uint256 price,
+        uint256 discount,
+        bool isVIP,
+        string memory metadataURI,
+        bool active
+    ) external onlyOwner {
+        require(templateId > 0, "Invalid template ID");
+        require(bytes(name).length > 0, "Name cannot be empty");
+        require(discount <= 100, "Invalid discount percentage");
+
+        templates[templateId] = Template(
+            name,
+            baseBalance,
+            price,
+            discount,
+            isVIP,
+            metadataURI,
+            active
+        );
+
+        emit TemplateUpdated(
+            templateId,
+            name,
+            baseBalance,
+            price,
+            discount,
+            isVIP,
+            metadataURI,
+            active
+        );
+    }
+
+    // Get template details
+    function getTemplate(uint256 templateId) external view returns (
+        string memory name,
+        uint256 baseBalance,
+        uint256 price,
+        uint256 discount,
+        bool isVIP,
+        string memory metadataURI,
+        bool active
+    ) {
+        Template memory template = templates[templateId];
+        return (
+            template.name,
+            template.baseBalance,
+            template.price,
+            template.discount,
+            template.isVIP,
+            template.metadataURI,
+            template.active
+        );
     }
 
     // Mint a new NFT from a template

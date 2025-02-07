@@ -1,6 +1,28 @@
 {
   "networkName": "polygonAmoy",
-  "contractAddress": "0x54083F594B420C897E7b49b8bdd6E2e170F28cB6",
-  "deploymentTime": "2025-02-05T00:39:16.868Z",
-  "deployer": "0xf383A56057374Ae7cb437D61cc86843855F0DdB5"
+  "contractAddress": "0x06745c4510F1C6bdeE1c04E009e56295384dE91e",
+  "deploymentTime": "2025-02-06T21:25:17.863Z",
+  "deployer": "0xf383A56057374Ae7cb437D61cc86843855F0DdB5",
+  "templates": [
+    {
+      "id": 1,
+      "name": "Gold",
+      "discount": 6
+    },
+    {
+      "id": 2,
+      "name": "Platinum",
+      "discount": 12
+    },
+    {
+      "id": 3,
+      "name": "Black",
+      "discount": 0
+    },
+    {
+      "id": 4,
+      "name": "EventBrite",
+      "discount": 0
+    }
+  ]
 }

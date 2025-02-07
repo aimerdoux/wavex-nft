@@ -1,0 +1,115 @@
+{
+  "opensea": {
+    "name": "WaveX Gold Card",
+    "description": "WaveX Gold membership card with 6% discount",
+    "image": "ipfs://QmTemplateGold",
+    "attributes": [
+      {
+        "trait_type": "Membership Tier",
+        "value": "Gold"
+      },
+      {
+        "trait_type": "WaveX Balance",
+        "value": "100"
+      },
+      {
+        "trait_type": "Valid Until",
+        "value": "2026-02-06T20:26:15.989Z"
+      }
+    ]
+  },
+  "nftVisual": {
+    "name": "WaveX Gold Card",
+    "description": "WaveX Gold membership card",
+    "image": "ipfs://QmTemplateGold",
+    "attributes": [
+      {
+        "trait_type": "Membership Tier",
+        "value": "Gold"
+      },
+      {
+        "trait_type": "WaveX Balance",
+        "value": "100"
+      }
+    ],
+    "properties": {
+      "tier": "Gold",
+      "benefits": [
+        "6% Discount on all purchases"
+      ],
+      "wavexBalance": "100",
+      "cardDesign": {
+        "primaryColor": "#FFD700",
+        "textColor": "#000000",
+        "image": "ipfs://QmTemplateGold"
+      }
+    }
+  },
+  "appleWallet": {
+    "formatVersion": 1,
+    "passTypeIdentifier": "pass.com.wavex.gold",
+    "serialNumber": "TEMPLATE-2",
+    "teamIdentifier": "WAVEX2024",
+    "organizationName": "WaveX",
+    "description": "WaveX Gold Card",
+    "logoText": "WaveX",
+    "foregroundColor": "#000000",
+    "backgroundColor": "#FFD700",
+    "storeCard": {
+      "primaryFields": [
+        {
+          "key": "balance",
+          "label": "BALANCE",
+          "value": "100",
+          "currencyCode": "USD"
+        }
+      ],
+      "secondaryFields": [
+        {
+          "key": "tier",
+          "label": "TIER",
+          "value": "Gold"
+        },
+        {
+          "key": "discount",
+          "label": "DISCOUNT",
+          "value": "6%"
+        }
+      ],
+      "backFields": [
+        {
+          "key": "validUntil",
+          "label": "VALID UNTIL",
+          "value": "2026-02-06T20:26:15.989Z"
+        },
+        {
+          "key": "benefit0",
+          "label": "BENEFIT",
+          "value": "6% Discount on all purchases"
+        }
+      ]
+    }
+  },
+  "prepaidCard": {
+    "templateId": "2",
+    "cardType": "Gold",
+    "baseBalance": "100",
+    "discount": "6",
+    "validUntil": "2026-02-06T20:26:15.989Z",
+    "style": {
+      "colors": {
+        "primary": "#FFD700",
+        "text": "#000000"
+      },
+      "image": "ipfs://QmTemplateGold"
+    },
+    "features": {
+      "benefits": [
+        "6% Discount on all purchases"
+      ],
+      "transferable": true,
+      "rechargeable": true,
+      "upgradeable": true
+    }
+  }
+}

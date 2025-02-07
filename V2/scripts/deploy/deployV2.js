@@ -20,20 +20,75 @@ async function main() {
         const balance = await provider.getBalance(deployer.address);
         console.log("Account balance:", hre.ethers.formatEther(balance), "MATIC");
 
+        // Gas settings for Polygon Amoy
+        const gasSettings = {
+            gasLimit: process.env.GAS_LIMIT || 5000000,
+            gasPrice: process.env.GAS_PRICE || 35000000000
+        };
+
         // Deploy contract
         console.log("Deploying contract...");
-        const wavexNFTV2 = await WaveXNFTV2.deploy();
+        const wavexNFTV2 = await WaveXNFTV2.deploy(gasSettings);
         await wavexNFTV2.waitForDeployment();
         
         const contractAddress = await wavexNFTV2.getAddress();
         console.log("Contract deployed to:", contractAddress);
+
+        // Update templates with correct discounts
+        console.log("\nUpdating templates with correct discounts...");
+        
+        const templateUpdates = [
+            { id: 1, name: "Gold", discount: 6 },
+            { id: 2, name: "Platinum", discount: 12 },
+            { id: 3, name: "Black", discount: 0 },
+            { id: 4, name: "EventBrite", discount: 0 }
+        ];
+
+        for (const template of templateUpdates) {
+            console.log(`\nUpdating ${template.name} template...`);
+            const currentTemplate = await wavexNFTV2.getTemplate(template.id);
+            
+            await wavexNFTV2.modifyTemplate(
+                template.id,
+                currentTemplate.name,
+                currentTemplate.baseBalance,
+                currentTemplate.price,
+                template.discount,
+                currentTemplate.isVIP,
+                currentTemplate.metadataURI,
+                currentTemplate.active,
+                gasSettings
+            );
+        }
+
+        // Verify final template configuration
+        console.log("\nVerifying final template configuration:");
+        console.log("====================================");
+
+        for (const template of templateUpdates) {
+            const templateData = await wavexNFTV2.getTemplate(template.id);
+            console.log(`\n${template.name} Template:`);
+            console.log("------------------------");
+            console.log("Name:", templateData.name);
+            console.log("Base Balance:", hre.ethers.formatEther(templateData.baseBalance), "WAVEX");
+            console.log("Price:", hre.ethers.formatEther(templateData.price), "WAVEX");
+            console.log("Discount:", templateData.discount.toString(), "%");
+            console.log("VIP Access:", templateData.isVIP);
+            console.log("Metadata URI:", templateData.metadataURI);
+            console.log("Active:", templateData.active);
+        }
 
         // Save deployment info
         const deploymentInfo = {
             networkName: hre.network.name,
             contractAddress: contractAddress,
             deploymentTime: new Date().toISOString(),
-            deployer: deployer.address
+            deployer: deployer.address,
+            templates: templateUpdates.map(t => ({
+                id: t.id,
+                name: t.name,
+                discount: t.discount
+            }))
         };
 
         const deploymentsDir = path.join(__dirname, '../../deployments/v2');
@@ -60,6 +115,8 @@ async function main() {
         fs.writeFileSync('V2.env', envContent);
 
         console.log("\nDeployment completed successfully!");
+        console.log("Configuration files updated");
+        
         return deploymentInfo;
 
     } catch (error) {

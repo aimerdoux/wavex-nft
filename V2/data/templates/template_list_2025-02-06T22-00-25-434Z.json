@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-02-06T22:00:25.435Z",
+  "network": "polygonAmoy",
+  "contractAddress": "0x06745c4510F1C6bdeE1c04E009e56295384dE91e",
+  "templates": [
+    {
+      "id": 1,
+      "name": "Gold",
+      "baseBalance": "2000.0",
+      "price": "2000.0",
+      "discount": "6",
+      "isVIP": false,
+      "metadataURI": "",
+      "active": true,
+      "offChainMetadata": null
+    },
+    {
+      "id": 2,
+      "name": "Platinum",
+      "baseBalance": "5000.0",
+      "price": "5000.0",
+      "discount": "12",
+      "isVIP": false,
+      "metadataURI": "",
+      "active": true,
+      "offChainMetadata": null
+    },
+    {
+      "id": 3,
+      "name": "Black",
+      "baseBalance": "10000.0",
+      "price": "10000.0",
+      "discount": "0",
+      "isVIP": false,
+      "metadataURI": "",
+      "active": true,
+      "offChainMetadata": null
+    },
+    {
+      "id": 4,
+      "name": "EventBrite",
+      "baseBalance": "0.0",
+      "price": "0.0",
+      "discount": "0",
+      "isVIP": false,
+      "metadataURI": "",
+      "active": true,
+      "offChainMetadata": null
+    }
+  ]
+}

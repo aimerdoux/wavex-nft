@@ -1,0 +1,115 @@
+{
+  "opensea": {
+    "name": "WaveX Custom Card",
+    "description": "WaveX Custom membership card with 0% discount",
+    "image": "ipfs://QmTemplateCustom",
+    "attributes": [
+      {
+        "trait_type": "Membership Tier",
+        "value": "Custom"
+      },
+      {
+        "trait_type": "WaveX Balance",
+        "value": "0"
+      },
+      {
+        "trait_type": "Valid Until",
+        "value": "2026-02-06T20:26:15.992Z"
+      }
+    ]
+  },
+  "nftVisual": {
+    "name": "WaveX Custom Card",
+    "description": "WaveX Custom membership card",
+    "image": "ipfs://QmTemplateCustom",
+    "attributes": [
+      {
+        "trait_type": "Membership Tier",
+        "value": "Custom"
+      },
+      {
+        "trait_type": "WaveX Balance",
+        "value": "0"
+      }
+    ],
+    "properties": {
+      "tier": "Custom",
+      "benefits": [
+        "Event Access"
+      ],
+      "wavexBalance": "0",
+      "cardDesign": {
+        "primaryColor": "#FFFFFF",
+        "textColor": "#000000",
+        "image": "ipfs://QmTemplateCustom"
+      }
+    }
+  },
+  "appleWallet": {
+    "formatVersion": 1,
+    "passTypeIdentifier": "pass.com.wavex.custom",
+    "serialNumber": "TEMPLATE-4",
+    "teamIdentifier": "WAVEX2024",
+    "organizationName": "WaveX",
+    "description": "WaveX Custom Card",
+    "logoText": "WaveX",
+    "foregroundColor": "#000000",
+    "backgroundColor": "#FFFFFF",
+    "storeCard": {
+      "primaryFields": [
+        {
+          "key": "balance",
+          "label": "BALANCE",
+          "value": "0",
+          "currencyCode": "USD"
+        }
+      ],
+      "secondaryFields": [
+        {
+          "key": "tier",
+          "label": "TIER",
+          "value": "Custom"
+        },
+        {
+          "key": "discount",
+          "label": "DISCOUNT",
+          "value": "0%"
+        }
+      ],
+      "backFields": [
+        {
+          "key": "validUntil",
+          "label": "VALID UNTIL",
+          "value": "2026-02-06T20:26:15.992Z"
+        },
+        {
+          "key": "benefit0",
+          "label": "BENEFIT",
+          "value": "Event Access"
+        }
+      ]
+    }
+  },
+  "prepaidCard": {
+    "templateId": "4",
+    "cardType": "Custom",
+    "baseBalance": "0",
+    "discount": "0",
+    "validUntil": "2026-02-06T20:26:15.992Z",
+    "style": {
+      "colors": {
+        "primary": "#FFFFFF",
+        "text": "#000000"
+      },
+      "image": "ipfs://QmTemplateCustom"
+    },
+    "features": {
+      "benefits": [
+        "Event Access"
+      ],
+      "transferable": true,
+      "rechargeable": true,
+      "upgradeable": true
+    }
+  }
+}

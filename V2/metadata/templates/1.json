@@ -1,0 +1,106 @@
+{
+  "opensea": {
+    "name": "WaveX Black Card",
+    "description": "WaveX Black membership card with 0% discount",
+    "image": "ipfs://QmTemplateBlack",
+    "attributes": [
+      {
+        "trait_type": "Membership Tier",
+        "value": "Black"
+      },
+      {
+        "trait_type": "WaveX Balance",
+        "value": "0"
+      },
+      {
+        "trait_type": "Valid Until",
+        "value": "2026-02-06T20:26:15.988Z"
+      }
+    ]
+  },
+  "nftVisual": {
+    "name": "WaveX Black Card",
+    "description": "WaveX Black membership card",
+    "image": "ipfs://QmTemplateBlack",
+    "attributes": [
+      {
+        "trait_type": "Membership Tier",
+        "value": "Black"
+      },
+      {
+        "trait_type": "WaveX Balance",
+        "value": "0"
+      }
+    ],
+    "properties": {
+      "tier": "Black",
+      "benefits": [],
+      "wavexBalance": "0",
+      "cardDesign": {
+        "primaryColor": "#000000",
+        "textColor": "#FFFFFF",
+        "image": "ipfs://QmTemplateBlack"
+      }
+    }
+  },
+  "appleWallet": {
+    "formatVersion": 1,
+    "passTypeIdentifier": "pass.com.wavex.black",
+    "serialNumber": "TEMPLATE-1",
+    "teamIdentifier": "WAVEX2024",
+    "organizationName": "WaveX",
+    "description": "WaveX Black Card",
+    "logoText": "WaveX",
+    "foregroundColor": "#FFFFFF",
+    "backgroundColor": "#000000",
+    "storeCard": {
+      "primaryFields": [
+        {
+          "key": "balance",
+          "label": "BALANCE",
+          "value": "0",
+          "currencyCode": "USD"
+        }
+      ],
+      "secondaryFields": [
+        {
+          "key": "tier",
+          "label": "TIER",
+          "value": "Black"
+        },
+        {
+          "key": "discount",
+          "label": "DISCOUNT",
+          "value": "0%"
+        }
+      ],
+      "backFields": [
+        {
+          "key": "validUntil",
+          "label": "VALID UNTIL",
+          "value": "2026-02-06T20:26:15.988Z"
+        }
+      ]
+    }
+  },
+  "prepaidCard": {
+    "templateId": "1",
+    "cardType": "Black",
+    "baseBalance": "0",
+    "discount": "0",
+    "validUntil": "2026-02-06T20:26:15.988Z",
+    "style": {
+      "colors": {
+        "primary": "#000000",
+        "text": "#FFFFFF"
+      },
+      "image": "ipfs://QmTemplateBlack"
+    },
+    "features": {
+      "benefits": [],
+      "transferable": true,
+      "rechargeable": true,
+      "upgradeable": true
+    }
+  }
+}
