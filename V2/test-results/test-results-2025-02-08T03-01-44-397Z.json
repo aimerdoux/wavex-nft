@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-02-08T03:01:17.516Z",
+  "network": "polygonAmoy",
+  "suites": [
+    {
+      "name": "System Integration",
+      "status": "failed",
+      "error": "err: insufficient funds for gas * price + value: address 0xf383A56057374Ae7cb437D61cc86843855F0DdB5 have 71022093782671142 want 19250000000000000000 (supplied gas 550000000)",
+      "stack": "ProviderError: err: insufficient funds for gas * price + value: address 0xf383A56057374Ae7cb437D61cc86843855F0DdB5 have 71022093782671142 want 19250000000000000000 (supplied gas 550000000)\n    at HttpProvider.request (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\hardhat\\src\\internal\\core\\providers\\http.ts:107:21)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at staticCallResult (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\ethers\\src.ts\\contract\\contract.ts:337:22)\n    at staticCall (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\ethers\\src.ts\\contract\\contract.ts:303:24)\n    at Proxy.getTemplate (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\ethers\\src.ts\\contract\\contract.ts:351:41)\n    at Object.runSystemTest [as run] (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\scripts\\test\\systemTest.js:38:31)\n    at runTests (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\scripts\\test\\runTests.js:51:37)",
+      "duration": 26733
+    }
+  ],
+  "totalTests": 1,
+  "passed": 0,
+  "failed": 1,
+  "duration": 26737
+}

@@ -2,15 +2,12 @@
 const hre = require("hardhat");
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: 'V2.env' });
+require('dotenv').config();
 
-async function main() {
+async function deployV2() {
     try {
-        console.log("Starting WaveX NFT V2 deployment on Polygon Amoy...");
+        console.log("\n=== Starting WaveX NFT V2 deployment on Polygon Amoy ===\n");
 
-        // Get the contract factory
-        const WaveXNFTV2 = await hre.ethers.getContractFactory("WaveXNFTV2");
-        
         // Get deployer account
         const [deployer] = await hre.ethers.getSigners();
         console.log("Deploying contracts with account:", deployer.address);
@@ -20,75 +17,85 @@ async function main() {
         const balance = await provider.getBalance(deployer.address);
         console.log("Account balance:", hre.ethers.formatEther(balance), "MATIC");
 
-        // Gas settings for Polygon Amoy
+        // Get network info
+        const network = await provider.getNetwork();
+        console.log('\nNetwork information:');
+        console.log('- Name:', network.name);
+        console.log('- Chain ID:', network.chainId);
+
+        // Get gas settings from network config
+        const networkConfig = hre.config.networks[network.name];
+        console.log('\nUsing network gas settings:', {
+            gasPrice: networkConfig.gasPrice ? hre.ethers.formatUnits(networkConfig.gasPrice, 'gwei') + ' gwei' : 'Not set',
+            gasLimit: networkConfig.gasLimit || 'Not set'
+        });
+
         const gasSettings = {
-            gasLimit: process.env.GAS_LIMIT || 5000000,
-            gasPrice: process.env.GAS_PRICE || 35000000000
+            gasPrice: networkConfig.gasPrice,
+            gasLimit: 100000 // Lower gas limit for deployment
         };
 
         // Deploy contract
-        console.log("Deploying contract...");
+        console.log('\nDeploying contract...');
+        const WaveXNFTV2 = await hre.ethers.getContractFactory("WaveXNFTV2");
         const wavexNFTV2 = await WaveXNFTV2.deploy(gasSettings);
+        console.log('Deployment transaction sent:', wavexNFTV2.deploymentTransaction().hash);
+        
+        console.log('Waiting for deployment transaction...');
         await wavexNFTV2.waitForDeployment();
         
         const contractAddress = await wavexNFTV2.getAddress();
-        console.log("Contract deployed to:", contractAddress);
+        console.log('Contract deployed to:', contractAddress);
 
-        // Update templates with correct discounts
-        console.log("\nUpdating templates with correct discounts...");
-        
-        const templateUpdates = [
-            { id: 1, name: "Gold", discount: 6 },
-            { id: 2, name: "Platinum", discount: 12 },
-            { id: 3, name: "Black", discount: 0 },
-            { id: 4, name: "EventBrite", discount: 0 }
-        ];
+        // Initialize contract
+        console.log('\nInitializing contract...');
 
-        for (const template of templateUpdates) {
-            console.log(`\nUpdating ${template.name} template...`);
-            const currentTemplate = await wavexNFTV2.getTemplate(template.id);
-            
-            await wavexNFTV2.modifyTemplate(
-                template.id,
-                currentTemplate.name,
-                currentTemplate.baseBalance,
-                currentTemplate.price,
-                template.discount,
-                currentTemplate.isVIP,
-                currentTemplate.metadataURI,
-                currentTemplate.active,
-                gasSettings
-            );
+        // Add supported tokens
+        console.log('\nAdding supported tokens...');
+        const usdtAddress = process.env.USDT_CONTRACT_ADDRESS;
+        const usdcAddress = process.env.USDC_CONTRACT_ADDRESS;
+
+        if (usdtAddress) {
+            console.log('Adding USDT support...');
+            const addUsdtTx = await wavexNFTV2.addSupportedToken(usdtAddress, gasSettings);
+            await addUsdtTx.wait();
+            console.log('USDT support added');
         }
 
-        // Verify final template configuration
-        console.log("\nVerifying final template configuration:");
-        console.log("====================================");
+        if (usdcAddress) {
+            console.log('Adding USDC support...');
+            const addUsdcTx = await wavexNFTV2.addSupportedToken(usdcAddress, gasSettings);
+            await addUsdcTx.wait();
+            console.log('USDC support added');
+        }
 
-        for (const template of templateUpdates) {
-            const templateData = await wavexNFTV2.getTemplate(template.id);
-            console.log(`\n${template.name} Template:`);
-            console.log("------------------------");
-            console.log("Name:", templateData.name);
-            console.log("Base Balance:", hre.ethers.formatEther(templateData.baseBalance), "WAVEX");
-            console.log("Price:", hre.ethers.formatEther(templateData.price), "WAVEX");
-            console.log("Discount:", templateData.discount.toString(), "%");
-            console.log("VIP Access:", templateData.isVIP);
-            console.log("Metadata URI:", templateData.metadataURI);
-            console.log("Active:", templateData.active);
+        // Initialize default templates
+        console.log('\nInitializing default templates...');
+        const initTx = await wavexNFTV2.initializeDefaultTemplates(gasSettings);
+        await initTx.wait();
+        console.log('Default templates initialized');
+
+        // Authorize merchant
+        console.log('\nAuthorizing merchant...');
+        const merchantAddress = process.env.MERCHANT_ADDRESS;
+        if (merchantAddress) {
+            const authTx = await wavexNFTV2.authorizeMerchant(merchantAddress, gasSettings);
+            await authTx.wait();
+            console.log('Merchant authorized:', merchantAddress);
         }
 
         // Save deployment info
         const deploymentInfo = {
-            networkName: hre.network.name,
+            networkName: network.name,
+            chainId: Number(network.chainId),
             contractAddress: contractAddress,
             deploymentTime: new Date().toISOString(),
             deployer: deployer.address,
-            templates: templateUpdates.map(t => ({
-                id: t.id,
-                name: t.name,
-                discount: t.discount
-            }))
+            supportedTokens: {
+                USDT: usdtAddress || '',
+                USDC: usdcAddress || ''
+            },
+            authorizedMerchants: [merchantAddress]
         };
 
         const deploymentsDir = path.join(__dirname, '../../deployments/v2');
@@ -98,7 +105,7 @@ async function main() {
 
         const deploymentPath = path.join(
             deploymentsDir,
-            `${hre.network.name}_deployment.json`
+            `${network.name}_deployment.json`
         );
         
         fs.writeFileSync(
@@ -106,13 +113,13 @@ async function main() {
             JSON.stringify(deploymentInfo, null, 2)
         );
 
-        // Update V2.env
-        let envContent = fs.readFileSync('V2.env', 'utf8');
+        // Update .env
+        let envContent = fs.readFileSync('.env', 'utf8');
         envContent = envContent.replace(
             /WAVEX_NFT_V2_ADDRESS=.*/,
             `WAVEX_NFT_V2_ADDRESS=${contractAddress}`
         );
-        fs.writeFileSync('V2.env', envContent);
+        fs.writeFileSync('.env', envContent);
 
         console.log("\nDeployment completed successfully!");
         console.log("Configuration files updated");
@@ -120,18 +127,25 @@ async function main() {
         return deploymentInfo;
 
     } catch (error) {
-        console.error("Error during deployment:", error);
-        process.exit(1);
+        console.error("\nError during deployment:");
+        console.error('- Message:', error.message);
+        console.error('- Stack:', error.stack);
+        if (error.code) console.error('- Code:', error.code);
+        if (error.reason) console.error('- Reason:', error.reason);
+        if (error.data) console.error('- Data:', error.data);
+        throw error;
     }
 }
 
+// Export the deployV2 function
+module.exports = { deployV2 };
+
+// Run deployment if called directly
 if (require.main === module) {
-    main()
+    deployV2()
         .then(() => process.exit(0))
         .catch((error) => {
             console.error(error);
             process.exit(1);
         });
 }
-
-module.exports = main;

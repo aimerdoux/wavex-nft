@@ -1,6 +1,6 @@
 // scripts/deploy/setupTokens.js
 const hre = require("hardhat");
-require('dotenv').config({ path: 'V2.env' });
+require('dotenv').config();
 
 async function setupTokens() {
     try {
@@ -11,13 +11,21 @@ async function setupTokens() {
             throw new Error("WAVEX_NFT_V2_ADDRESS not found in environment");
         }
 
+        console.log("Contract address:", contractAddress);
+
         const WaveXNFT = await hre.ethers.getContractFactory("WaveXNFTV2");
         const wavexNFT = WaveXNFT.attach(contractAddress);
 
-        // Gas settings
+        // Get gas settings from network config
+        const networkConfig = hre.config.networks[hre.network.name];
+        console.log('\nUsing network gas settings:', {
+            gasPrice: networkConfig.gasPrice ? hre.ethers.formatUnits(networkConfig.gasPrice, 'gwei') + ' gwei' : 'Not set',
+            gasLimit: networkConfig.gasLimit || 'Not set'
+        });
+
         const gasSettings = {
-            gasLimit: process.env.GAS_LIMIT || 5000000,
-            gasPrice: process.env.GAS_PRICE || 35000000000
+            gasPrice: networkConfig.gasPrice,
+            gasLimit: 100000 // Lower gas limit for token operations
         };
 
         console.log("\nSetting up supported tokens...");
@@ -32,14 +40,23 @@ async function setupTokens() {
                 throw new Error(`${symbol}_CONTRACT_ADDRESS not found in environment`);
             }
 
-            const isSupported = await wavexNFT.supportedTokens(address);
-            if (!isSupported) {
-                console.log(`Adding ${symbol} token (${address})...`);
-                const tx = await wavexNFT.addSupportedToken(address, gasSettings);
-                await tx.wait();
-                console.log(`${symbol} token added successfully`);
-            } else {
-                console.log(`${symbol} token already supported`);
+            console.log(`\nProcessing ${symbol} token (${address})...`);
+            
+            try {
+                const isSupported = await wavexNFT.supportedTokens(address);
+                if (!isSupported) {
+                    console.log(`Adding ${symbol} token...`);
+                    const tx = await wavexNFT.addSupportedToken(address, gasSettings);
+                    console.log(`Transaction sent: ${tx.hash}`);
+                    console.log('Waiting for confirmation...');
+                    await tx.wait();
+                    console.log(`${symbol} token added successfully`);
+                } else {
+                    console.log(`${symbol} token already supported`);
+                }
+            } catch (error) {
+                console.error(`Error processing ${symbol} token:`, error.message);
+                throw error;
             }
         }
 
@@ -65,11 +82,20 @@ async function setupTokens() {
         return { successful: true, tokens: setupResults };
 
     } catch (error) {
-        console.error("\nError in token setup:", error);
-        process.exit(1);
+        console.error("\nError in token setup:");
+        console.error('- Message:', error.message);
+        console.error('- Stack:', error.stack);
+        if (error.code) console.error('- Code:', error.code);
+        if (error.reason) console.error('- Reason:', error.reason);
+        if (error.data) console.error('- Data:', error.data);
+        throw error;
     }
 }
 
+// Export the function
+module.exports = setupTokens;
+
+// Run setup if called directly
 if (require.main === module) {
     setupTokens()
         .then(() => process.exit(0))
@@ -78,5 +104,3 @@ if (require.main === module) {
             process.exit(1);
         });
 }
-
-module.exports = setupTokens;

@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-02-08T02:53:57.826Z",
+  "network": "polygonAmoy",
+  "suites": [
+    {
+      "name": "System Integration",
+      "status": "failed",
+      "error": "execution reverted: Pausable: not paused",
+      "stack": "ProviderError: execution reverted: Pausable: not paused\n    at HttpProvider.request (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\hardhat\\src\\internal\\core\\providers\\http.ts:107:21)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at HardhatEthersProvider.estimateGas (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\@nomicfoundation\\hardhat-ethers\\src\\internal\\hardhat-ethers-provider.ts:246:27)\n    at C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\@nomicfoundation\\hardhat-ethers\\src\\signers.ts:235:35\n    at async Promise.all (index 0)\n    at HardhatEthersSigner._sendUncheckedTransaction (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\@nomicfoundation\\hardhat-ethers\\src\\signers.ts:256:7)\n    at HardhatEthersSigner.sendTransaction (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\@nomicfoundation\\hardhat-ethers\\src\\signers.ts:125:18)\n    at send (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\ethers\\src.ts\\contract\\contract.ts:313:20)\n    at Proxy.initializeDefaultTemplates (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\ethers\\src.ts\\contract\\contract.ts:352:16)\n    at Object.runSystemTest [as run] (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\scripts\\test\\systemTest.js:37:24)",
+      "duration": 25212
+    }
+  ],
+  "totalTests": 1,
+  "passed": 0,
+  "failed": 1,
+  "duration": 25216
+}

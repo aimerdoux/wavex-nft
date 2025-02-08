@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-02-08T01:43:58.822Z",
+  "network": "polygonAmoy",
+  "suites": [
+    {
+      "name": "System Integration",
+      "status": "failed",
+      "error": "insufficient funds for gas * price + value: balance 62327308828029612, tx cost 112564270000000000, overshot 50236961171970388",
+      "stack": "ProviderError: insufficient funds for gas * price + value: balance 62327308828029612, tx cost 112564270000000000, overshot 50236961171970388\n    at HttpProvider.request (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\hardhat\\src\\internal\\core\\providers\\http.ts:107:21)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at HardhatEthersSigner.sendTransaction (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\@nomicfoundation\\hardhat-ethers\\src\\signers.ts:125:18)\n    at ContractFactory.deploy (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\node_modules\\ethers\\src.ts\\contract\\factory.ts:111:24)\n    at deployV2 (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\scripts\\deploy\\deployV2.js:29:28)\n    at Object.runSystemTest [as run] (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\scripts\\test\\systemTest.js:24:30)\n    at runTests (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\scripts\\test\\runTests.js:52:37)",
+      "duration": 2232
+    }
+  ],
+  "totalTests": 1,
+  "passed": 0,
+  "failed": 1,
+  "duration": 2236
+}

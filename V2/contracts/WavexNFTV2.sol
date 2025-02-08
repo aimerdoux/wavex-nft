@@ -8,11 +8,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
+contract WaveXNFTV2 is ERC721URIStorage, Pausable, Ownable {
     using Counters for Counters.Counter;
 
     // Counter for token IDs
     Counters.Counter private _tokenIds;
+    // Counter for template IDs
+    Counters.Counter private _templateIds;
 
     // Template system
     struct Template {
@@ -81,12 +83,18 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         bool active
     );
 
-    constructor() ERC721("WaveX NFT V2", "WAVEX2") {
-        // Initialize with default templates
-        _addTemplate(1, "Gold", 2000 ether, 2000 ether, 0, false, "", true);
-        _addTemplate(2, "Platinum", 5000 ether, 5000 ether, 0, false, "", true);
-        _addTemplate(3, "Black", 10000 ether, 10000 ether, 0, false, "", true);
-        _addTemplate(4, "EventBrite", 0, 0, 0, false, "", true);
+    constructor() ERC721("WaveX NFT V2", "WAVEX2") Ownable() {
+        // Contract starts unpaused
+        // Templates will be initialized later
+    }
+
+    // Initialize default templates (to be called after deployment)
+    function initializeDefaultTemplates() external onlyOwner {
+        require(templates[1].baseBalance == 0, "Templates already initialized");
+        
+        // Add default templates
+        _addTemplate(1, "Gold", 1 ether, 1 ether, 0, false, "", true);
+        _addTemplate(2, "Platinum", 2 ether, 2 ether, 0, false, "", true);
     }
 
     // Add a supported token
@@ -136,6 +144,11 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
             active
         );
 
+        // Update template counter if needed
+        if (templateId > _templateIds.current()) {
+            _templateIds.increment();
+        }
+
         emit TemplateCreated(
             templateId,
             name,
@@ -146,6 +159,11 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
             metadataURI,
             active
         );
+    }
+
+    // Get template count
+    function getTemplateCount() external view returns (uint256) {
+        return _templateIds.current();
     }
 
     // Modify an existing template
@@ -196,6 +214,7 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         bool active
     ) {
         Template memory template = templates[templateId];
+        require(bytes(template.name).length > 0, "Template does not exist");
         return (
             template.name,
             template.baseBalance,
@@ -212,7 +231,7 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         uint256 templateId,
         address to,
         string memory uri
-    ) external payable returns (uint256) {
+    ) external payable whenNotPaused returns (uint256) {
         require(templates[templateId].active, "Template not active");
         require(msg.value >= templates[templateId].price, "Insufficient payment");
 
@@ -231,7 +250,7 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
     }
 
     // Top up the balance of a token
-    function topUpBalance(uint256 tokenId, uint256 amount, address paymentToken) external {
+    function topUpBalance(uint256 tokenId, uint256 amount, address paymentToken) external whenNotPaused {
         require(_exists(tokenId), "Token does not exist");
         require(supportedTokens[paymentToken], "Token not supported");
 
@@ -258,7 +277,7 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         uint256 tokenId,
         uint256 amount,
         string memory metadata
-    ) external {
+    ) external whenNotPaused {
         require(_exists(tokenId), "Token does not exist");
         require(authorizedMerchants[msg.sender], "Not authorized merchant");
         require(tokenBalance[tokenId] >= amount, "Insufficient balance");
@@ -284,14 +303,14 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         uint256 price,
         uint256 capacity,
         uint256 eventType
-    ) external onlyOwner returns (uint256) {
+    ) external onlyOwner whenNotPaused returns (uint256) {
         uint256 eventId = uint256(keccak256(abi.encodePacked(name, block.timestamp)));
         events[eventId] = Event(name, price, capacity, 0, true, eventType);
         return eventId;
     }
 
     // Purchase entrance to an event
-    function purchaseEventEntrance(uint256 tokenId, uint256 eventId) external {
+    function purchaseEventEntrance(uint256 tokenId, uint256 eventId) external whenNotPaused {
         require(_exists(tokenId), "Token does not exist");
         require(events[eventId].active, "Event not active");
         require(events[eventId].soldCount < events[eventId].capacity, "Event full");
@@ -315,17 +334,27 @@ contract WaveXNFTV2 is ERC721, Pausable, Ownable, ERC721URIStorage {
         authorizedMerchants[merchant] = false;
     }
 
+    // Pause contract
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    // Unpause contract
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
     // Override required functions
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+    function _burn(uint256 tokenId) internal override {
         super._burn(tokenId);
     }
 
-    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
     // Add the supportsInterface override
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721URIStorage) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 

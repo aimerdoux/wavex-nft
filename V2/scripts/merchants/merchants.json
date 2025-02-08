@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Merchant 1",
+    "address": "0x1234567890abcdef",
+    "templateId": 1,
+    "status": "active",
+    "commissionRate": 5,
+    "contractAddress": "0x1234567890abcdef"
+  },
+  {
+    "id": 2,
+    "name": "Merchant 2",
+    "address": "0x1234567890abcd12",
+    "templateId": 2,
+    "status": "active",
+    "commissionRate": 5,
+    "contractAddress": "0x1234567890abcd12"
+  }
+]

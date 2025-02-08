@@ -1,121 +1,139 @@
-// scripts/merchant/manageMerchants.js
+const fs = require("fs");
+const path = require("path");
 const hre = require("hardhat");
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config({ path: 'V2.env' });
+const { authorizeMerchant, revokeMerchant } = require("./authorizeMerchants");
 
-async function manageMerchants(action, merchantData) {
+const MERCHANTS_FILE = "merchants.json";
+const MERCHANTS_PATH = path.join(__dirname, MERCHANTS_FILE);
+
+async function loadMerchants() {
     try {
-        console.log(`Starting merchant ${action} process...`);
-
-        // Get contract instance
-        const contractAddress = process.env.WAVEX_NFT_V2_ADDRESS;
-        if (!contractAddress) {
-            throw new Error("WAVEX_NFT_V2_ADDRESS not found in environment");
-        }
-
-        const WaveXNFT = await hre.ethers.getContractFactory("WaveXNFTV2");
-        const wavexNFT = WaveXNFT.attach(contractAddress);
-
-        // Gas settings
-        const gasSettings = {
-            gasLimit: process.env.GAS_LIMIT || 5000000,
-            gasPrice: process.env.GAS_PRICE || 35000000000
-        };
-
-        switch (action.toLowerCase()) {
-            case 'add':
-                for (const merchant of merchantData) {
-                    console.log(`\nProcessing merchant: ${merchant.name || 'Unnamed'}`);
-                    console.log(`Address: ${merchant.address}`);
-
-                    const isAuthorized = await wavexNFT.authorizedMerchants(merchant.address);
-                    if (!isAuthorized) {
-                        console.log("Authorizing merchant...");
-                        const tx = await wavexNFT.authorizeMerchant(
-                            merchant.address,
-                            gasSettings
-                        );
-                        await tx.wait();
-                        console.log("✅ Merchant authorized successfully");
-                    } else {
-                        console.log("⚠️ Merchant already authorized");
-                    }
-                }
-                break;
-
-            case 'remove':
-                for (const merchant of merchantData) {
-                    console.log(`\nProcessing merchant: ${merchant.name || 'Unnamed'}`);
-                    console.log(`Address: ${merchant.address}`);
-
-                    const isAuthorized = await wavexNFT.authorizedMerchants(merchant.address);
-                    if (isAuthorized) {
-                        console.log("Revoking merchant...");
-                        const tx = await wavexNFT.revokeMerchant(
-                            merchant.address,
-                            gasSettings
-                        );
-                        await tx.wait();
-                        console.log("✅ Merchant revoked successfully");
-                    } else {
-                        console.log("⚠️ Merchant not authorized");
-                    }
-                }
-                break;
-
-            case 'check':
-                console.log("\nChecking merchant status:");
-                for (const merchant of merchantData) {
-                    const isAuthorized = await wavexNFT.authorizedMerchants(merchant.address);
-                    console.log(`\nMerchant: ${merchant.name || 'Unnamed'}`);
-                    console.log(`Address: ${merchant.address}`);
-                    console.log(`Status: ${isAuthorized ? '✅ Authorized' : '❌ Not Authorized'}`);
-                }
-                break;
-
-            default:
-                throw new Error(`Invalid action: ${action}`);
-        }
-
+        const data = fs.readFileSync(MERCHANTS_PATH, "utf8");
+        return JSON.parse(data);
     } catch (error) {
-        console.error("\nError in merchant management:", error);
-        process.exit(1);
+        if (error.code === "ENOENT") {
+            return [];
+        }
+        throw error;
     }
 }
 
-// Command line interface
-if (require.main === module) {
-    const args = process.argv.slice(2);
-    const action = args[0];
-    const merchantsFile = args[1];
+async function saveMerchants(merchants) {
+    fs.writeFileSync(MERCHANTS_PATH, JSON.stringify(merchants, null, 2));
+}
 
-    if (!action || !merchantsFile) {
-        console.log("\nUsage:");
-        console.log("npx hardhat run scripts/merchant/manageMerchants.js [action] [merchants-file.json] --network [network]");
-        console.log("\nActions:");
-        console.log("  add    - Add new merchants");
-        console.log("  remove - Remove existing merchants");
-        console.log("  check  - Check merchant status");
-        console.log("\nExample merchants.json:");
-        console.log(JSON.stringify([
-            {
-                "name": "Merchant 1",
-                "address": "0x..."
-            }
-        ], null, 2));
-        process.exit(1);
-    }
+async function addMerchant(merchantAddress, merchantData) {
+    try {
+        let merchants = await loadMerchants();
+        
+        // Check if merchant already exists
+        const existing = merchants.find(m => m.address === merchantAddress);
+        if (existing) {
+            throw new Error(`Merchant ${merchantAddress} already exists`);
+        }
 
-    // Read merchants from file
-    const merchantData = JSON.parse(fs.readFileSync(merchantsFile, 'utf8'));
+        // Authorize the merchant on-chain
+        const txHash = await authorizeMerchant(merchantAddress);
 
-    manageMerchants(action, merchantData)
-        .then(() => process.exit(0))
-        .catch(error => {
-            console.error(error);
-            process.exit(1);
+        // Add to merchant list
+        merchants.push({
+            address: merchantAddress,
+            name: merchantData.name,
+            email: merchantData.email,
+            authorized: true,
+            addedAt: new Date().toISOString()
         });
+
+        await saveMerchants(merchants);
+
+        return {
+            txHash,
+            merchant: {
+                ...merchantData,
+                address: merchantAddress
+            }
+        };
+    } catch (error) {
+        console.error(`Error adding merchant ${merchantAddress}:`, error);
+        throw error;
+    }
 }
 
-module.exports = manageMerchants;
+async function removeMerchant(merchantAddress) {
+    try {
+        let merchants = await loadMerchants();
+        
+        // Find merchant index
+        const index = merchants.findIndex(m => m.address === merchantAddress);
+        if (index === -1) {
+            throw new Error(`Merchant ${merchantAddress} not found`);
+        }
+
+        // Revoke authorization
+        const txHash = await revokeMerchant(merchantAddress);
+
+        // Remove from list
+        merchants.splice(index, 1);
+        await saveMerchants(merchants);
+
+        return { txHash };
+    } catch (error) {
+        console.error(`Error removing merchant ${merchantAddress}:`, error);
+        throw error;
+    }
+}
+
+async function updateMerchant(merchantAddress, updates) {
+    try {
+        let merchants = await loadMerchants();
+        
+        // Find merchant
+        const index = merchants.findIndex(m => m.address === merchantAddress);
+        if (index === -1) {
+            throw new Error(`Merchant ${merchantAddress} not found`);
+        }
+
+        // Update merchant data
+        merchants[index] = {
+            ...merchants[index],
+            ...updates
+        };
+        await saveMerchants(merchants);
+
+        return merchants[index];
+    } catch (error) {
+        console.error(`Error updating merchant ${merchantAddress}:`, error);
+        throw error;
+    }
+}
+
+async function getMerchant(merchantAddress) {
+    try {
+        const merchants = await loadMerchants();
+        const merchant = merchants.find(m => m.address === merchantAddress);
+        if (!merchant) {
+            throw new Error(`Merchant ${merchantAddress} not found`);
+        }
+        return merchant;
+    } catch (error) {
+        console.error(`Error getting merchant ${merchantAddress}:`, error);
+        throw error;
+    }
+}
+
+async function getAllMerchants() {
+    try {
+        return await loadMerchants();
+    } catch (error) {
+        console.error("Error loading merchants:", error);
+        throw error;
+    }
+}
+
+module.exports = {
+    addMerchant,
+    removeMerchant,
+    updateMerchant,
+    getMerchant,
+    getAllMerchants
+};

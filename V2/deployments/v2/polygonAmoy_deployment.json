@@ -1,28 +1,14 @@
 {
   "networkName": "polygonAmoy",
-  "contractAddress": "0x06745c4510F1C6bdeE1c04E009e56295384dE91e",
-  "deploymentTime": "2025-02-06T21:25:17.863Z",
+  "chainId": 80002,
+  "contractAddress": "0x4a821854B43553544Aa9Bacf4f51497F9fD9a714",
+  "deploymentTime": "2025-02-08T03:01:43.983Z",
   "deployer": "0xf383A56057374Ae7cb437D61cc86843855F0DdB5",
-  "templates": [
-    {
-      "id": 1,
-      "name": "Gold",
-      "discount": 6
-    },
-    {
-      "id": 2,
-      "name": "Platinum",
-      "discount": 12
-    },
-    {
-      "id": 3,
-      "name": "Black",
-      "discount": 0
-    },
-    {
-      "id": 4,
-      "name": "EventBrite",
-      "discount": 0
-    }
+  "supportedTokens": {
+    "USDT": "0x5409ED021D9299bf6814279A6A1411A7e866A631",
+    "USDC": "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23"
+  },
+  "authorizedMerchants": [
+    "0xf383A56057374Ae7cb437D61cc86843855F0DdB5"
   ]
 }

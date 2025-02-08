@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-02-08T01:18:49.669Z",
+  "network": "polygon",
+  "suites": [
+    {
+      "name": "System Integration",
+      "status": "failed",
+      "error": "deployV2 is not a function",
+      "stack": "TypeError: deployV2 is not a function\n    at Object.runSystemTest [as run] (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\scripts\\test\\systemTest.js:24:36)\n    at runTests (C:\\Users\\OHG\\Documents\\wavex-nft\\V2\\scripts\\test\\runTests.js:52:49)",
+      "duration": 8
+    }
+  ],
+  "totalTests": 1,
+  "passed": 0,
+  "failed": 1,
+  "duration": 15
+}
